@@ -1,6 +1,6 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/suhcjUE-)
 # Exam #12345: "Exam Title"
-## Student: s123456 LASTNAME FIRSTNAME 
+## Student: s123456 Cardona Riccardo 
 
 ## React Client Application Routes
 
@@ -10,12 +10,36 @@
 
 ## API Server
 
-- POST `/api/login`
-  - request parameters and request body content
-  - response body content
-- GET `/api/something`
-  - request parameters
-  - response body content
+- GET `/api/pages`
+  - Description: Get all the questions
+  - Request body: _None_
+  - Response: `200 OK` (success) or `500 Internal Server Error` (generic error).
+  - Response body: An array of objects, each describing a page.
+  ```
+  [{
+      "id": 1,
+      "authorId": 1,
+      "creationDate": "2023-06-05T22:00:00.000Z",
+      "publicationDate": "2023-06-09T22:00:00.000Z"
+  },
+  ...
+  ]
+  ```
+
+- GET `/api/pages/<id>`
+  - Description: Get the page identified by the id `<id>`
+  - Request body: _None_
+  - Response: `200 OK` (success), `404 Not Found` (wrong id) or `500 Internal Server Error` (generic error).
+  - Response body: An object, describing a sigle page.
+  ```
+  {
+      "id": 2,
+      "authorId": 2,
+      "creationDate": "2023-06-05T22:00:00.000Z",
+      "publicationDate": "2023-06-09T22:00:00.000Z"
+  }
+  ```
+  
 - POST `/api/something`
   - request parameters and request body content
   - response body content
@@ -23,9 +47,10 @@
 
 ## Database Tables
 
-- Table `users` - contains xx yy zz
-- Table `something` - contains ww qq ss
-- ...
+- Table `users`  - contains: id, username, name, salt, password
+- Table `pagina` - contains: id, autoreId, data di creazione, data di pubblicazione
+- Table `blocco` - contains: id, tipo blocco, id pagina, contenuto
+
 
 ## Main React Components
 
@@ -41,6 +66,10 @@
 
 ## Users Credentials
 
-- username, password (plus any other requested info)
-- username, password (plus any other requested info)
+* username: riccardo@test.com, password: "pwd"
+* username: stefano@test.com, password: "pwd"
+* username: simone@test.com, password: "pwd"
+* username: lorenzo@test.com, password: "pwd"
+* username: chiara@test.com, password: "pwd"
+
 

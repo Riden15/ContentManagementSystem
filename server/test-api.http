@@ -1,0 +1,10 @@
+
+## get all the pages
+GET http://localhost:3001/api/pages HTTP/1.1
+###
+
+## get a specific page specifing its {id}
+GET http://localhost:3001/api/pages/2 HTTP/1.1
+###
+
+
