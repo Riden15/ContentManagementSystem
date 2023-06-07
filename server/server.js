@@ -3,7 +3,7 @@
 const express = require('express');
 const morgan = require('morgan'); // logging middleware
 const {check, validationResult} = require('express-validator'); // validation middleware
-const dao = require('./dao'); // module for accessing the DB
+const dao = require('./pages-dao'); // module for accessing the DB
 const passport = require('passport'); // auth middleware
 const LocalStrategy = require('passport-local').Strategy; // username and password for login
 const session = require('express-session'); // enable sessions
@@ -23,6 +23,8 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+app.use('/images', express.static('images')) // serve per far tornare dal server le immagini
+
 const answerDelay = 300; //todo alla fine togliere il delay
 
 
@@ -34,16 +36,22 @@ const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
 };
 
 
-/***    APIs    ***/
+/***   PAGES APIs    ***/
 
-// GET /api/pages
+/*
+    1. GET /api/pages
+    ritorna la lista completa delle pagine
+ */
 app.get('/api/pages', (req, res) => {
     dao.listPages()
         .then(pagine => setTimeout(()=>res.json(pagine), answerDelay))
         .catch(() => res.status(500).end())
 });
 
-// GET /api/pages/<id>
+/*
+    2. GET /api/pages/<id>
+    ritorna una pagina specifica identificata da <id>
+*/
 app.get('/api/pages/:id', [check('id').isInt({min:1})],
     async (req, res) => {
     const errors = validationResult(req).formatWith(errorFormatter);
@@ -59,6 +67,19 @@ app.get('/api/pages/:id', [check('id').isInt({min:1})],
     } catch(err) {
         res.status(500).end();
     }
+});
+
+/***   USERS APIs    ***/
+
+/*
+    1. GET /api/users
+    ritorna la lista di tutti gli utenti (solo il nome e l'id)
+    todo da mette nel README
+ */
+app.get('/api/users', (req, res) => {
+   userDao.listUsers()
+       .then(users => setTimeout(()=>res.json(users), answerDelay))
+       .catch(() => res.status(500).end())
 });
 
 /***    Other express-related instructions     ***/

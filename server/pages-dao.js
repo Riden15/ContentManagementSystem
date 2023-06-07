@@ -13,7 +13,7 @@ exports.listPages = () => {
              reject(err);
              return;
          }
-         const pagine = rows.map((pagina) => ({id: pagina.id, authorId: pagina.authorId, creationDate: dayjs(pagina.creationDate), publicationDate: dayjs(pagina.publicationDate)}));
+         const pagine = rows.map((pagina) => ({id: pagina.id, title:pagina.title, authorId: pagina.authorId, creationDate: dayjs(pagina.creationDate), publicationDate: dayjs(pagina.publicationDate)}));
          resolve(pagine);
       });
     });
@@ -31,7 +31,7 @@ exports.getPage = (id) => {
             if (row === undefined) {
                 resolve({error: 'Pagina non trovata.'});
             } else {
-                const pagina = { id: row.id, authorId: row.authorId, creationDate: dayjs(row.creationDate), publicationDate: dayjs(row.publicationDate)};
+                const pagina = { id: row.id, title:pagina.title, authorId: row.authorId, creationDate: dayjs(row.creationDate), publicationDate: dayjs(row.publicationDate)};
                 resolve(pagina);
             }
         });

@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS "users" (
 
 CREATE TABLE IF NOT EXISTS "pages" (
                                         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+                                        "title" TEXT,
                                         "authorId" INTEGER,
                                         "creationDate" DATE,
                                         "publicationDate" DATE
@@ -28,8 +29,8 @@ INSERT INTO users VALUES (3,'simone@test.com','Simone',   'wgb32sge2sh7hse7', '0
 INSERT INTO users VALUES (4,'lorenzo@test.com','Lorenzo',   'safd6523tdwt82et', '330f9bd2d0472e3ca8f11d147d01ea210954425a17573d0f6b8240ed503959f8');
 INSERT INTO users VALUES (5,'chiara@test.com','Chiara',   'ad37JHUW38wj2833', 'bbbcbac88d988bce98cc13e4c9308306d621d9e278ca62aaee2d156f898a41dd');
 
-INSERT INTO pages VALUES (1, 1, '2023-06-06', '2023-06-10');
-INSERT INTO pages VALUES (2, 2, '2023-06-06', '2023-06-10');
+INSERT INTO pages VALUES (1, 'Titolo1', 1, '2023-06-06', '2023-06-10');
+INSERT INTO pages VALUES (2, 'Titolo2', 2, '2023-06-06', '2023-06-10');
 
 INSERT INTO blocks VALUES (1, 'header', 1, 'header pagina 1');
 INSERT INTO blocks VALUES (2, 'immagine', 1, 'images/chatting.webp');

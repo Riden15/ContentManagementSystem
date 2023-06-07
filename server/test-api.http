@@ -7,4 +7,6 @@ GET http://localhost:3001/api/pages HTTP/1.1
 GET http://localhost:3001/api/pages/2 HTTP/1.1
 ###
 
-
+## get an image of the sever
+GET http://localhost:3001/images/chatting.webp HTTP/1.1
+###
