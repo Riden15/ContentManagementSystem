@@ -1,9 +1,10 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/suhcjUE-)
 # Exam #12345: "Exam Title"
-## Student: s123456 Cardona Riccardo 
+## Student: s319441 Cardona Riccardo 
 
 ## React Client Application Routes
 
+qua vanno scritte le route dell'applicazione
 - Route `/`: page content and purpose
 - Route `/something/:param`: page content and purpose, param specification
 - ...
@@ -47,9 +48,9 @@
 
 ## Database Tables
 
-- Table `users`  - contains: id, username, name, salt, password
-- Table `pagina` - contains: id, autoreId, data di creazione, data di pubblicazione
-- Table `blocco` - contains: id, tipo blocco, id pagina, contenuto
+- Table `users`  - id, username, name, salt, password
+- Table `pages`  - id, authorId, title, creationDate, publicationDate
+- Table `blocks` - id, blockType, pageId, content
 
 
 ## Main React Components
@@ -62,6 +63,7 @@
 
 ## Screenshot
 
+mettere screenshot della pagina, cosa si dovrebbe vedere
 ![Screenshot](./img/screenshot.jpg)
 
 ## Users Credentials

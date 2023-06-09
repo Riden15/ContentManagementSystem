@@ -40,17 +40,22 @@ const getPages = async () => {
         return json.map((pagina) => ({id: pagina.id, title:pagina.title, authorId: pagina.authorId, creationDate: dayjs(pagina.creationDate), publicationDate: dayjs(pagina.publicationDate)}))
     })};
 
-
-
-/*
-Getting from the server the list of users (just name and id)
- */
-const getUsers = async () => {
-    return getJson(fetch(SERVER_URL + 'users'))
-        .then(json => {
-            return json.map((user) => ({id: user.id, name:user.name}));
-        });
+async function logIn(credentials) {
+    let response = await fetch(SERVER_URL + 'sessions', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+    });
+    if (response.ok) {
+        return await response.json();
+    } else {
+        const errDetail = await response.json();
+        throw errDetail.message;
+    }
 }
 
-const API = { getPages, getUsers };
+const API = { getPages, logIn };
 export default API;

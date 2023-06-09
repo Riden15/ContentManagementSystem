@@ -7,7 +7,8 @@ import { Container, Toast } from 'react-bootstrap/'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import { Navigation } from './components/Navigation';
-import {MainLayout, NotFoundLayout} from './components/MainLayout.jsx';
+import {MainLayout, NotFoundLayout, } from './components/MainLayout.jsx';
+import {LoginForm} from "./components/LoginForm.jsx";
 import MessageContext from './components/MessageCtx.js';
 import API from './API';
 
@@ -15,7 +16,9 @@ import API from './API';
 function App() {
   const [message, setMessage] = useState('');
   const [pages, setPages] = useState([]);
+  const [loggedIn, setLoggedIn] = useState(false);
 
+  const [user, setUser] = useState([]);
 
   // If an error occurs, the error message will be shown in a toast.
   const handleErrors = (err) => { //todo da rifare, magari mettendo un toast
@@ -26,13 +29,19 @@ function App() {
     setMessage(msg); // WARN: a more complex application requires a queue of messages. In this example only last error is shown.
   }
 
+    const loginSuccessful = (user) => {
+        setUser(user);
+        setLoggedIn(true);
+    }
+
+
   return (
     <BrowserRouter>
       <MessageContext.Provider value={{handleErrors}}>
         <Container fluid className={'App'}>
           <Navigation/>
             <Routes>
-                <Route path="/" element={ <MainLayout pages={pages} setPages={setPages}/>}>
+                <Route path="/" element={ loggedIn ? <MainLayout pages={pages} setPages={setPages}/> : <LoginForm loginSuccessful={loginSuccessful}/>}>
                 <Route path="add" element={<MainLayout pages={pages} setPages={setPages}/>}/>
                 <Route path="edit/:pageId" element={<MainLayout pages={pages} setPages={setPages}/>}/>
                 <Route path="components/:pageId" element={<MainLayout pages={pages} setPages={setPages}/>}/>

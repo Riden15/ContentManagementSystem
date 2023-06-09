@@ -1,5 +1,9 @@
 
 ## get all the pages
+GET http://localhost:3001/api/pages/?filter=published HTTP/1.1
+###
+
+## get all the pages
 GET http://localhost:3001/api/pages HTTP/1.1
 ###
 

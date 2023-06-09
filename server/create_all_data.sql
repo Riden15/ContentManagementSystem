@@ -2,10 +2,11 @@ BEGIN TRANSACTION;
 
 CREATE TABLE IF NOT EXISTS "users" (
                                         "id"	INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        "username"	TEXT,
+                                        "email"	TEXT,
                                         "name"	TEXT,
                                         "salt"	TEXT,
-                                        "password"	TEXT
+                                        "password"	TEXT,
+                                        "admin" INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS "pages" (
@@ -23,18 +24,21 @@ CREATE TABLE IF NOT EXISTS "blocks" (
                                         "content" TEXT
 );
 
-INSERT INTO users VALUES (1,'riccardo@test.com','Riccardo', '123348dusd437840', 'bddfdc9b092918a7f65297b4ba534dfe306ed4d5d72708349ddadb99b1c526fb'); /* password='pwd' */
-INSERT INTO users VALUES (2,'stefano@test.com','Stefano',   '7732qweydg3sd637', '498a8d846eb4efebffc56fc0de16d18905714cf12edf548b8ed7a4afca0f7c1c');
-INSERT INTO users VALUES (3,'simone@test.com','Simone',   'wgb32sge2sh7hse7', '09a79c91c41073e7372774fcb114b492b2b42f5e948c61d775ad4f628df0e160');
-INSERT INTO users VALUES (4,'lorenzo@test.com','Lorenzo',   'safd6523tdwt82et', '330f9bd2d0472e3ca8f11d147d01ea210954425a17573d0f6b8240ed503959f8');
-INSERT INTO users VALUES (5,'chiara@test.com','Chiara',   'ad37JHUW38wj2833', 'bbbcbac88d988bce98cc13e4c9308306d621d9e278ca62aaee2d156f898a41dd');
+/* password='prova' per tutti gli utenti */
+INSERT INTO users VALUES (1,'riccardo@test.com','Riccardo', 'uyrbh75689gtobhr', '1000c66ce7d62b1119fe9c599c127819fdd516ff91adc703161531f71964f476', 1);
+INSERT INTO users VALUES (2,'stefano@test.com','Stefano',   '478fgmde306hnlff', '4ac68149d953a9cbea196d74b0d685d52da62b16510f68b45f7636ea9fc1a45f', 0);
+INSERT INTO users VALUES (3,'simone@test.com','Simone',   '40hjnfetupnqzunr', '95309c38cfda3f5183ed1c65bf40e91e7870a4b4c8453bd0fcbc3e8e4cc375c1', 1);
+INSERT INTO users VALUES (4,'lorenzo@test.com','Lorenzo',   '846hcnkytnavc06c', '1f97a02f1ff1f3f5d8b0710b98ef8920364a5b3a8a465cc4a6ea37f72014efbd', 0);
+INSERT INTO users VALUES (5,'chiara@test.com','Chiara',   'jvnatf950jkmvcru', '3177b2f789fb18135ed2e32f4e15f44e20d49356e66439dcb02ef23b6af00618', 0);
 
-INSERT INTO pages VALUES (1, 'Titolo1', 1, '2023-06-06', '2023-06-10');
-INSERT INTO pages VALUES (2, 'Titolo2', 2, '2023-06-06', '2023-06-10');
+INSERT INTO pages VALUES (1, 'Titolo1', 1, '2023-06-06', '2023-06-09');
+INSERT INTO pages VALUES (2, 'Titolo2', 2, '2023-06-06', '2023-06-09');
+INSERT INTO pages VALUES (3, 'Titolo3', 3, '2023-06-06', '2024-06-09');
 
 INSERT INTO blocks VALUES (1, 'header', 1, 'header pagina 1');
 INSERT INTO blocks VALUES (2, 'immagine', 1, 'images/chatting.webp');
 INSERT INTO blocks VALUES (3, 'header', 2, 'header pagina 2');
 INSERT INTO blocks VALUES (4, 'paragrafo', 2, 'paragrafo pagina 2');
+INSERT INTO blocks VALUES (5, 'header', 3, 'header pagina 3');
 
 COMMIT;

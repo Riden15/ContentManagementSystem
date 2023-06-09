@@ -11,34 +11,19 @@ function MainLayout(props) {
     const [dirty, setDirty] = useState(true);
     const {handleErrors} = useContext(MessageContext);
 
-    // todo capire come funziona sta funzione
-    const innerJoin = (xs, ys, sel) =>
-        xs.reduce((zs, x) =>
-            ys.reduce((zs, y) =>        // cartesian product - all combinations
-                    zs.concat(sel(x, y) || []), // filter out the rows and columns you want
-                zs), []);
-
-    // useEffect che riempie lo stato dove ci sono le pagine
-    useEffect(() => {
-            API.getPages()
-                .then(pages => {
-                    API.getUsers()
-                        .then(users => {
-                        const result = innerJoin(users, pages, ({id: uid, name}, {id, title, authorId, creationDate, publicationDate }) =>
-                            authorId === uid && {id, title, name, creationDate, publicationDate});
-                        props.setPages(result);
-                        }).catch(err => {handleErrors(err);})
-                    setLoading(false);
-                }).catch(err => {
-                handleErrors(err);
-            });
-    }, []);
 
     const deletePage = (pageId) => {
         API.deletePage(pageId)
             .then(() => {setDirty(true);})
             .catch(err => {handleErrors(err);})
     }
+
+    useEffect(()=> {
+        API.getPages().then(pages => {
+            props.setPages(pages);
+            setLoading(false);
+        }).catch(e => { handleErrors(e); } )
+    }, [])
 
     return (
         loading ? <LoadingLayout /> :
