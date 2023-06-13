@@ -24,7 +24,6 @@ function ComponentsList(props) {
 
     return (
         <>
-
             {blocks.sort((a,b) => a.order - b.order).map((blocco) => <SingleBlock key={blocco.id} blocco={blocco} first={blocco.order}/>)}
             <Link className="btn btn-danger text-center" to={'/'}> Main Page </Link>
         </>
@@ -34,8 +33,6 @@ function ComponentsList(props) {
 
 function SingleBlock(props) {
     const currentBlock=props.blocco;
-    const SERVER_URL = 'http://localhost:3001/';
-
     return (
         <>
             <Card  className={ props.first===1? 'below-nav text-center' : 'text-center' }  >
@@ -43,7 +40,7 @@ function SingleBlock(props) {
                     <Card.Title>{currentBlock.blockType}</Card.Title>
                     {
                         currentBlock.blockType==='immagine' ?
-                            <Card.Img style={{ width: '18rem', marginLeft:'auto', marginRight:'auto'}} variant="top" src= {SERVER_URL + currentBlock.content}></Card.Img>
+                            <Card.Img style={{ width: '18rem', marginLeft:'auto', marginRight:'auto'}} variant="top" src= {currentBlock.content}></Card.Img>
                             : <></>
                     }
                     <Card.Text>

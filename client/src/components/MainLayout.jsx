@@ -8,19 +8,20 @@ import {Link, Outlet} from "react-router-dom";
 
 function MainLayout(props) {
 
-    const [dirty, setDirty] = useState(true);
     const {handleErrors} = useContext(MessageContext);
 
     const deletePage = (pageId) => {
         API.deletePage(pageId)
-            .then(() => {setDirty(true);})
+            .then(() => {props.setDirty(true);})
             .catch(err => {handleErrors(err);})
     }
 
+    // todo da aggiunge il controllo se l'utente è admin, il tasto add non ci deve essere
     return (
             <>
                 <h1 className="below-nav">Lista delle pagine</h1>
                 <PageList pages={props.pages} deletePage={deletePage}/>
+
                 <Link className="btn btn-primary btn-lg fixed-right-bottom" to="/add" state={{nextpage: location.pathname}}> &#43; </Link>
             </>
     );

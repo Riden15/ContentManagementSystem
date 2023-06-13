@@ -1,16 +1,59 @@
+## Execute Log In
+POST http://localhost:3001/api/sessions HTTP/1.1
+content-type: application/json
 
-## get all the pages
-GET http://localhost:3001/api/pages/?filter=published HTTP/1.1
+{
+  "username": "riccardo@test.com",
+  "password": "prova"
+}
 ###
 
-## get all the pages
+## Checking if user is still logged-in and get the fill list of pages
+GET http://localhost:3001/api/sessions/current HTTP/1.1
+###
+
+## Execute Log Out.
+DELETE http://localhost:3001/api/sessions/current HTTP/1.1
+###
+
+## get all the pages if the user is logged or just the pushished ones
 GET http://localhost:3001/api/pages HTTP/1.1
 ###
 
-## get a specific page specifing its {id}
-GET http://localhost:3001/api/pages/2 HTTP/1.1
+## get a specific page specifing its {id} if the user is logged-in
+GET http://localhost:3001/api/pages/1 HTTP/1.1
+###
+
+## Create new page if the user is logged-in
+POST http://localhost:3001/api/pages HTTP/1.1
+content-type: application/json
+
+{
+    "title": "prova",
+    "favorite": 1,
+    "creationDate": "2023-06-13",
+    "publicationDate": "2023-06-13",
+    "blocks": [
+      {
+        "blockType": "header",
+        "content": "prova header",
+        "order": 1
+      },
+      {
+        "blockType": "paragrafo",
+        "content": "prova paragrafo",
+        "order": 2
+      }
+    ]
+}
+###
+
+## get the list of images
+GET http://localhost:3001/api/images HTTP/1.1
 ###
 
 ## get an image of the sever
 GET http://localhost:3001/images/chatting.webp HTTP/1.1
 ###
+
+

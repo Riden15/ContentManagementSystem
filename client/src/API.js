@@ -34,7 +34,7 @@ function getJson(httpResponsePromise) {
 /*
 Getting from the server side the list of pages.
  */
-const getPages = async () => {
+async function getPages() {
     return getJson(fetch(SERVER_URL + 'pages')
     ).then( json => {
         return json.map((pagina) =>
@@ -45,8 +45,39 @@ const getPages = async () => {
                 user: {id: pagina.user.id, name: pagina.user.name, admin: pagina.user.admin},
                 blocks: pagina.blocks.map((blocco)=>
                     ({id: blocco.id, blockType: blocco.blockType, content: blocco.content, order: blocco.order}))
-            }))
-    })};
+            }));
+    })}
+
+async function getPage(id) {
+    return getJson(fetch(SERVER_URL + 'pages/' + id, { credentials: 'include' })
+    ).then( pagina => {
+        return {
+                id: pagina.id,
+                title:pagina.title,
+                authorId: pagina.authorId,
+                creationDate: dayjs(pagina.creationDate),
+                publicationDate: dayjs(pagina.publicationDate),
+                blocks: pagina.blocks.map((blocco)=>
+                    ({id: blocco.id, blockType: blocco.blockType, content: blocco.content, order: blocco.order}))
+            };
+    })
+}
+
+async function addPage(page) {
+    return getJson(fetch(SERVER_URL + 'pages', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(page)
+    }))
+}
+
+async function getImages() {
+    return getJson(fetch(SERVER_URL + 'images',{ credentials: 'include' }))
+}
+
 
 async function logIn(credentials) {
     let response = await fetch(SERVER_URL + 'sessions', {
@@ -108,10 +139,6 @@ async function getCurrentSession()  {
     }
 }
 
-async function getImage(url) {
-    return await fetch(SERVER_URL + url);
-}
-
 async function logOut() {
     await fetch(SERVER_URL+'sessions/current', {
         method: 'DELETE',
@@ -119,5 +146,5 @@ async function logOut() {
     });
 }
 
-const API = { getPages, logIn, logOut, getCurrentSession, getImage };
+const API = { getPages, logIn, logOut, getCurrentSession, getPage, getImages ,addPage};
 export default API;

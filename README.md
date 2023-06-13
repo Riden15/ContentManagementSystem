@@ -61,6 +61,7 @@ qua vanno scritte le route dell'applicazione
   {
       "title": "Titolo1",
       "publicationDate": "2023-06-09",
+      "creationDate": "2023-06-05",
       "blocks": [
         {
             "blockType": "header",
