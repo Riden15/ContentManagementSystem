@@ -7,10 +7,9 @@ import {Link, Outlet} from "react-router-dom";
 
 
 function MainLayout(props) {
-    const [loading, setLoading] = useState(true);  // This state is used for displaying a LoadingLayout while we are waiting an answer from the server.
+
     const [dirty, setDirty] = useState(true);
     const {handleErrors} = useContext(MessageContext);
-
 
     const deletePage = (pageId) => {
         API.deletePage(pageId)
@@ -18,15 +17,7 @@ function MainLayout(props) {
             .catch(err => {handleErrors(err);})
     }
 
-    useEffect(()=> {
-        API.getPages().then(pages => {
-            props.setPages(pages);
-            setLoading(false);
-        }).catch(e => { handleErrors(e); } )
-    }, [])
-
     return (
-        loading ? <LoadingLayout /> :
             <>
                 <h1 className="below-nav">Lista delle pagine</h1>
                 <PageList pages={props.pages} deletePage={deletePage}/>
@@ -34,7 +25,6 @@ function MainLayout(props) {
             </>
     );
 }
-
 
 
 function NotFoundLayout() {
@@ -47,6 +37,8 @@ function NotFoundLayout() {
         </>
     );
 }
+
+//todo da modificare, magari mettendoci uno spinner
 function LoadingLayout() {
     return (
         <Row className="vh-100">

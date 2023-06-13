@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS "blocks" (
                                         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
                                         "blockType" TEXT,
                                         "pageId" INTEGER,
-                                        "content" TEXT
+                                        "content" TEXT,
+                                        "order" INTEGER
 );
 
 /* password='prova' per tutti gli utenti */
@@ -35,10 +36,11 @@ INSERT INTO pages VALUES (1, 'Titolo1', 1, '2023-06-06', '2023-06-09');
 INSERT INTO pages VALUES (2, 'Titolo2', 2, '2023-06-06', '2023-06-09');
 INSERT INTO pages VALUES (3, 'Titolo3', 3, '2023-06-06', '2024-06-09');
 
-INSERT INTO blocks VALUES (1, 'header', 1, 'header pagina 1');
-INSERT INTO blocks VALUES (2, 'immagine', 1, 'images/chatting.webp');
-INSERT INTO blocks VALUES (3, 'header', 2, 'header pagina 2');
-INSERT INTO blocks VALUES (4, 'paragrafo', 2, 'paragrafo pagina 2');
-INSERT INTO blocks VALUES (5, 'header', 3, 'header pagina 3');
+INSERT INTO blocks VALUES (1, 'header', 1, 'header pagina 1', 1);
+INSERT INTO blocks VALUES (2, 'immagine', 1, 'images/chatting.webp', 2);
+INSERT INTO blocks VALUES (3, 'header', 2, 'header pagina 2', 1);
+INSERT INTO blocks VALUES (4, 'paragrafo', 2, 'paragrafo pagina 2', 2);
+INSERT INTO blocks VALUES (5, 'header', 3, 'header pagina 3', 1);
+insert into blocks VALUES (6, 'immagine', 3, 'images/ok.webp', 2);
 
 COMMIT;

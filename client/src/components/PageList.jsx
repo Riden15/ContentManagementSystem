@@ -33,17 +33,32 @@ function PageRow(props) {
     const formatWatchDate = (dayJsDate, format) => {
         return dayJsDate ? dayJsDate.format(format) : '';
     }
-
     // location is used to pass state to the edit (or add) view so that we may be able to come back to the last filter view
     const location = useLocation();
 
+    let statusClass = null;
+
+    switch(props.pageData.status) {
+        case 'added':
+            statusClass = 'table-success';
+            break;
+        case 'deleted':
+            statusClass = 'table-danger';
+            break;
+        case 'updated':
+            statusClass = 'table-warning';
+            break;
+        default:
+            break;
+    }
+
     return(
-        <tr>
+        <tr className={statusClass}>
             <td>
                 <p className={"favorite"} >{props.pageData.title}</p>
             </td>
             <td>
-                <p>{props.pageData.name}</p>
+                <p>{props.pageData.user.name}</p>
             </td>
             <td>
                 <p>{formatWatchDate(props.pageData.creationDate, 'MMMM D, YYYY')}</p>

@@ -37,7 +37,15 @@ Getting from the server side the list of pages.
 const getPages = async () => {
     return getJson(fetch(SERVER_URL + 'pages')
     ).then( json => {
-        return json.map((pagina) => ({id: pagina.id, title:pagina.title, authorId: pagina.authorId, creationDate: dayjs(pagina.creationDate), publicationDate: dayjs(pagina.publicationDate)}))
+        return json.map((pagina) =>
+            ({id: pagina.id,
+                title:pagina.title,
+                creationDate: dayjs(pagina.creationDate),
+                publicationDate: dayjs(pagina.publicationDate),
+                user: {id: pagina.user.id, name: pagina.user.name, admin: pagina.user.admin},
+                blocks: pagina.blocks.map((blocco)=>
+                    ({id: blocco.id, blockType: blocco.blockType, content: blocco.content, order: blocco.order}))
+            }))
     })};
 
 async function logIn(credentials) {
@@ -50,12 +58,66 @@ async function logIn(credentials) {
         body: JSON.stringify(credentials),
     });
     if (response.ok) {
-        return await response.json();
+        const object = await response.json();
+        return {
+            id: object.id,
+            name: object.name,
+            email: object.email,
+            admin: object.admin,
+            pagine: object.pagine.map((pagina) => ({
+                id: pagina.id,
+                title: pagina.title,
+                creationDate: dayjs(pagina.creationDate),
+                publicationDate: dayjs(pagina.publicationDate),
+                user: {id: pagina.user.id, name: pagina.user.name, admin: pagina.user.admin},
+                blocks: pagina.blocks.map((blocco) =>
+                    ({id: blocco.id, blockType: blocco.blockType, content: blocco.content, order: blocco.order}))
+            }))
+        };
     } else {
         const errDetail = await response.json();
         throw errDetail.message;
     }
 }
 
-const API = { getPages, logIn };
+async function getCurrentSession()  {
+    const response = await fetch(SERVER_URL+'sessions/current', {
+        credentials: 'include'
+    });
+    if (response.ok) {
+        const object = await response.json();
+        return {
+            id: object.id,
+            name: object.name,
+            email: object.email,
+            admin: object.admin,
+            pagine: object.pagine.map((pagina) => ({
+                id: pagina.id,
+                title: pagina.title,
+                authorId: pagina.authorId,
+                creationDate: dayjs(pagina.creationDate),
+                publicationDate: dayjs(pagina.publicationDate),
+                user: {id: pagina.user.id, name: pagina.user.name, admin: pagina.user.admin},
+                blocks: pagina.blocks.map((blocco) =>
+                    ({id: blocco.id, blockType: blocco.blockType, pageId: blocco.pageId, content: blocco.content, order:blocco.order}))
+            }))
+        };
+    } else {
+        const errDetail = await response.json();
+        throw errDetail.message;
+    }
+}
+
+async function getImage(url) {
+    return await fetch(SERVER_URL + url);
+}
+
+async function logOut() {
+    await fetch(SERVER_URL+'sessions/current', {
+        method: 'DELETE',
+        credentials: 'include'
+    });
+}
+
+const API = { getPages, logIn, logOut, getCurrentSession, getImage };
 export default API;

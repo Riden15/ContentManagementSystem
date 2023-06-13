@@ -12,18 +12,31 @@ qua vanno scritte le route dell'applicazione
 ## API Server
 
 - GET `/api/pages`
-  - Description: Get all the questions
+  - Description: returns the list of pages that have the status 'published' i.e. the date is before today's date (for unauthenticated users)
   - Request body: _None_
   - Response: `200 OK` (success) or `500 Internal Server Error` (generic error).
-  - Response body: An array of objects, each describing a page.
-  ```
+  - Response body: An array of objects, each describing a page. This object have for each page the description of the author and the complete list of blocks
+  ``` JSON
   [{
       "id": 1,
-      "authorId": 1,
-      "creationDate": "2023-06-05T22:00:00.000Z",
-      "publicationDate": "2023-06-09T22:00:00.000Z"
-  },
-  ...
+      "title": "Titolo1",
+      "creationDate": "2023-06-06",
+      "publicationDate": "2023-06-09",
+      "user": {
+          "id": 1,
+          "name": "Riccardo",
+          "admin": 1
+      },
+      "blocks": [
+          {
+            "id": 1,
+            "blockType": "header",
+            "content": "header pagina 1",
+            "order": 1
+          },  
+          ...
+                ]
+      ...
   ]
   ```
 
@@ -32,8 +45,8 @@ qua vanno scritte le route dell'applicazione
   - Request body: _None_
   - Response: `200 OK` (success), `404 Not Found` (wrong id) or `500 Internal Server Error` (generic error).
   - Response body: An object, describing a sigle page.
-  ```
-  {
+  ``` JSON
+  { 
       "id": 2,
       "authorId": 2,
       "creationDate": "2023-06-05T22:00:00.000Z",
@@ -41,16 +54,32 @@ qua vanno scritte le route dell'applicazione
   }
   ```
   
-- POST `/api/something`
-  - request parameters and request body content
-  - response body content
-- ...
+- POST `/api/pages`
+  - Description: creates a new page for the logged-in user and also all of its blocks providing all the necessary information.
+  - Request body: 
+  ``` JSON
+  {
+      "title": "Titolo1",
+      "publicationDate": "2023-06-09",
+      "blocks": [
+        {
+            "blockType": "header",
+            "content": "header pagina 1",
+            "order": 1
+        },
+        ...
+                ]
+  }
+  ```
+  - Response: `200 OK` (success) or `503 Service Unavailable` (database error)
+  - Response body content: the new ID that the database gave to the page
+
 
 ## Database Tables
 
-- Table `users`  - id, username, name, salt, password
+- Table `users`  - id, username, name, salt, password, admin
 - Table `pages`  - id, authorId, title, creationDate, publicationDate
-- Table `blocks` - id, blockType, pageId, content
+- Table `blocks` - id, blockType, pageId, content, order
 
 
 ## Main React Components

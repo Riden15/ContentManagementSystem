@@ -7,17 +7,18 @@ function LoginForm(props) {
     const [username, setUsername] = useState('riccardo@test.com');
     const [password, setPassword] = useState('prova');
     const [errorMessage, setErrorMessage] = useState('') ;
-
     const navigate = useNavigate();
 
     const doLogIn = (credentials) => {
+        props.setLoading(true)
         API.logIn(credentials)
-            .then( user => {
+            .then( user_withPages => {
                 setErrorMessage('');
-                props.loginSuccessful(user);
+                props.loginSuccessful(user_withPages);
+                navigate('/');
             })
             .catch(err => {
-                // NB: Generic error message, should not give additional info (e.g., if user exists etc.)
+                // todo Generic error message, should not give additional info (e.g., if user exists etc.)
                 setErrorMessage('Wrong username or password');
             })
     }
@@ -31,7 +32,6 @@ function LoginForm(props) {
         let valid = true;
         if(username === '' || password === '')
             valid = false;
-
         if(valid)
         {
             doLogIn(credentials);

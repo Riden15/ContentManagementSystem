@@ -21,7 +21,7 @@ const dbAllAsync = (db, sql, params = []) => new Promise((resolve, reject) => {
 const dbRunAsync = (db, sql, params = []) => new Promise((resolve, reject) => {
     db.run(sql, params, err => {
         if (err) reject(err);
-        else     resolve();
+        else     resolve(this.lastID);
     });
 });
 
@@ -40,11 +40,10 @@ exports.listPages = async (filter='') => {
     let pages = []
     if (filter === 'published')
     {
-        pages = (await dbAllAsync(db, `select * from pages where publicationDate<= '${dayjs().format('YYYY-MM-DD')}' `)).map(p => ({...p, user:{}, blocks:[]}));
+        pages = (await dbAllAsync(db, `select * from pages where publicationDate<= '${dayjs().format('YYYY-MM-DD')}' order by publicationDate`)).map(p => ({...p, user:{}, blocks:[]}));
     }
     else {
-        pages = (await dbAllAsync(db, "select * from pages")).map(p => ({...p, user:{}, blocks:[]}));
-
+        pages = (await dbAllAsync(db, "select * from pages order by publicationDate")).map(p => ({...p, user:{}, blocks:[]}));
     }
     const users = (await dbAllAsync(db, "select id, name, admin from users"));
     const blocks = (await  dbAllAsync(db, "select * from blocks"));
@@ -54,14 +53,15 @@ exports.listPages = async (filter='') => {
         const findedUser = users.find(u => u.id === object.authorId);
         if(!findedUser && !findedBlocks) throw "DB inconsistent";
         object.user = findedUser;
+        delete object.authorId; // non serve perchè viene ritornato direttamente l'oggetto user
         for (const element of findedBlocks)
         {
             if (findedBlocks.length) object.blocks.push(element);
+            delete element.pageId // non serve perchè un blocco viene ritornato collegato alla sua pagina
         }
     }
     return pages;
 };
-
 
 // get the page identified by {id}
 exports.getPage = (id) => {
@@ -75,9 +75,24 @@ exports.getPage = (id) => {
             if (row === undefined) {
                 resolve({error: 'Pagina non trovata.'});
             } else {
-                const pagina = { id: row.id, title:pagina.title, authorId: row.authorId, creationDate: dayjs(row.creationDate), publicationDate: dayjs(row.publicationDate)};
+                const pagina = { id: row.id, title:row.title, authorId: row.authorId, creationDate: dayjs(row.creationDate), publicationDate: dayjs(row.publicationDate)};
                 resolve(pagina);
             }
         });
     });
 };
+
+exports.createPage_blocks = async (pagina, blocchi) => {
+    const newPageID = await dbRunAsync(db,
+        'INSERT INTO pages (title, authorId, creationDate, publicationDate) VALUES(?, ?, ?, ?)',
+        [pagina.title, pagina.authorId, pagina.creationDate, pagina.publicationDate]);
+
+    if (blocchi.length > 0) {
+        for (const element of blocchi) {
+            const sql = await dbRunAsync(db,
+                'INSERT INTO blocks (blockType, pageId, content, order) VALUES(?, ?, ?, ?)',
+                [element.blockType, newPageID, element.content, element.order]);
+        }
+    }
+    return newPageID;
+}
