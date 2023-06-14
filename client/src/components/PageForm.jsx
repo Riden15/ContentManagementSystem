@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {Link, useLocation, useNavigate} from "react-router-dom";
-import {Button, Col, Form, FormGroup, InputGroup, Row} from "react-bootstrap";
+import {Button, Col, Form, FormGroup, Image, InputGroup, Row} from "react-bootstrap";
 import API from "../API.js";
 import MessageContext from "./MessageCtx.js";
 
@@ -138,18 +138,22 @@ function PageForm(props) {
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        // String.trim() method is used for removing leading and ending whitespaces from the title.
-        const film = {"title": title.trim(), "favorite": favorite, "rating": rating, "watchDate": watchDate }
+        const pagina = {
+            title: title.trim(),
+            creationDate: creationDate,
+            publicationDate: publicationDate,
+            blocks: arrayBlocks
+        }
 
         /* In this solution validations are executed through HTML.
            If you prefer JavaScript validations, this is the right place for coding them. */
 
-        if(props.film) {
-            film.id = props.film.id;
-            props.editFilm(film);
+        if(props.page) {
+            pagina.id = props.page.id;
+            props.editPage(pagina);
         }
         else
-            props.addFilm(film);
+            props.addPage(pagina);
 
         navigate('/');
     }
@@ -193,7 +197,7 @@ function PageForm(props) {
             &nbsp;
             <Button className="mb-3" variant="primary" onClick={addBlockImage}>Aggiungi blocco Immagine</Button>
             <br/>
-            <Button className="mb-3" variant="primary" >Save</Button>
+            <Button className="mb-3" variant="primary" type="submit" >Save</Button>
             &nbsp;
             <Link className="btn btn-danger mb-3" to={nextpage}> Cancel </Link>
         </Form>
@@ -252,7 +256,7 @@ function BlockForm(props) {
                                             type='radio'
                                             id={i.url}
                                 />
-                                <img src={i.url} alt={''}/>
+                                <Image src={i.url} thumbnail/>
                         </>
                         )
                         )}

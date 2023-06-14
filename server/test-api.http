@@ -49,6 +49,19 @@ content-type: application/json
 ###
 
 ## get the list of images
+GET http://localhost:3001/api/title HTTP/1.1
+###
+
+## change title
+PUT http://localhost:3001/api/title HTTP/1.1
+content-type: application/json
+
+{
+  "title": "CMS"
+}
+###
+
+## get the list of images
 GET http://localhost:3001/api/images HTTP/1.1
 ###
 

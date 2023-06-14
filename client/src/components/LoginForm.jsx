@@ -10,12 +10,12 @@ function LoginForm(props) {
     const navigate = useNavigate();
 
     const doLogIn = (credentials) => {
-        props.setLoading(true)
+        props.setLoading(true);
         API.logIn(credentials)
             .then( user_withPages => {
                 setErrorMessage('');
                 props.loginSuccessful(user_withPages);
-                navigate('/');
+                navigate('/backOffice');
             })
             .catch(err => {
                 // todo Generic error message, should not give additional info (e.g., if user exists etc.)
@@ -58,7 +58,7 @@ function LoginForm(props) {
                             <Form.Control type='password' value={password} onChange={ev => setPassword(ev.target.value)} />
                         </Form.Group>
                         <Button className='my-2' type='submit'>Login</Button>
-                        <Button className='my-2 mx-2' variant='danger' onClick={()=>navigate('/')}>Cancel</Button>
+                        <Button className='my-2 mx-2' variant='danger' onClick={()=>navigate("/")}>Cancel</Button>
                     </Form>
                 </Col>
                 <Col xs={3}></Col>

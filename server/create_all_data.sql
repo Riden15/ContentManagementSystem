@@ -30,6 +30,10 @@ CREATE TABLE IF NOT EXISTS "images" (
     "url" TEXT
 );
 
+CREATE TABLE IF NOT EXISTS "title" (
+    "title" TEXT PRIMARY KEY
+);
+
 /* password='prova' per tutti gli utenti */
 INSERT INTO users VALUES (1,'riccardo@test.com','Riccardo', 'uyrbh75689gtobhr', '1000c66ce7d62b1119fe9c599c127819fdd516ff91adc703161531f71964f476', 1);
 INSERT INTO users VALUES (2,'stefano@test.com','Stefano',   '478fgmde306hnlff', '4ac68149d953a9cbea196d74b0d685d52da62b16510f68b45f7636ea9fc1a45f', 0);
@@ -46,11 +50,13 @@ INSERT INTO blocks VALUES (2, 'immagine', 1, 'http://localhost:3001/images/chatt
 INSERT INTO blocks VALUES (3, 'header', 2, 'header pagina 2', 1);
 INSERT INTO blocks VALUES (4, 'paragrafo', 2, 'paragrafo pagina 2', 2);
 INSERT INTO blocks VALUES (5, 'header', 3, 'header pagina 3', 1);
-insert into blocks VALUES (6, 'immagine', 3, 'http://localhost:3001/images/ok.webp', 2);
+INSERT INTO blocks VALUES (6, 'immagine', 3, 'http://localhost:3001/images/ok.webp', 2);
 
 INSERT INTO images VALUES (1, 'http://localhost:3001/images/chatting.webp');
 INSERT INTO images VALUES (2, 'http://localhost:3001/images/ok.webp');
 INSERT INTO images VALUES (3, 'http://localhost:3001/images/pepog.webp');
 INSERT INTO images VALUES (4, 'http://localhost:3001/images/hackerman.webp');
+
+INSERT INTO title VALUES ('Content Management system');
 
 COMMIT;

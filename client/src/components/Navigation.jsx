@@ -1,27 +1,49 @@
-import React from 'react';
+import React, {useContext, useState} from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 import { Navbar, Nav, Form, Button} from 'react-bootstrap';
 import {Link, useNavigate} from 'react-router-dom';
+import API from "../API.js";
+import MessageContext from "./MessageCtx.js";
 
 const Navigation = (props) => {
     const navigate = useNavigate();
+    const {handleErrors} = useContext(MessageContext);
+    const name = props.user && props.user.name;
+    const title = props.title;
+    const [newTitle, setNewTitle] = useState('');
+
     const handleSubmit = (event) => {
         event.preventDefault();
     }
-    const name = props.user && props.user.name;
+
+    const changeTitle = (title) => {
+        const newT = {title: title};
+        API.setTitle(newT).then(() => {
+            props.setTitle(title);
+            props.setDirty(true);
+        }).catch(err => {handleErrors(err)})
+    }
 
     return (
         <Navbar bg="primary" expand="sm" variant="dark" fixed="top" className="navbar-padding">
             <Link to="/">
                 <Navbar.Brand>
-                    <i className="bi bi-kanban"></i> Content Management system
+                    <i className="bi bi-kanban"></i> {title}
                 </Navbar.Brand>
             </Link>
-            <Form className="my-2 my-lg-0 mx-auto d-sm-block" action="#" role="search" aria-label="Quick search" onSubmit={handleSubmit}>
-                <Form.Control className="mr-sm-2" type="search" placeholder="Search" aria-label="Search query" />
-            </Form>
-            <Nav className="ml-md-auto">
+            { props.user && props.user.admin===1 ?
+                <>
+                    <Form className="my-lg-1" action="#" role="search" aria-label="Quick search" onSubmit={handleSubmit}>
+                        <Form.Control className="mr-sm-2" type="search" placeholder="New Title" aria-label="Search query"
+                        onChange={event => setNewTitle(event.target.value)}/>
+                    </Form>
+                    <Button className="btn btn-primary" onClick={()=>changeTitle(newTitle)}>
+                        <i className="bi bi-pencil-square"/>
+                    </Button>
+                </> : <></>
+            }
+            <Nav className="ml-md-auto ms-auto">
                 <Nav.Item>
                     <Nav.Link>
                         <i className="bi bi-person-circle icon-size"/>

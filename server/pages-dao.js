@@ -95,10 +95,8 @@ exports.createPage = async (pagina) => {
 }
 
 exports.createBlocks = async (block, pageId) => {
-    console.log(block);
-    console.log(pageId);
     return new Promise((resolve, reject) => {
-        const sql = 'INSERT INTO blocks (blockType, pageId, content, order) VALUES(?, ?, ?, ?)'
+        const sql = 'INSERT INTO blocks (blockType, pageId, content, "order") VALUES(?, ?, ?, ?)'
         db.run(sql, [block.blockType, pageId, block.content, block.order], function (err) {
                 if(err) {
                     reject(err);
@@ -109,6 +107,24 @@ exports.createBlocks = async (block, pageId) => {
     })
 }
 
+exports.deletePage = async (pageId, admin, userId) => {
+    if(admin===1)
+    {
+        return await dbRunAsync(db, 'DELETE FROM films WHERE id = ?', [pageId]);
+    }
+    else {
+        return await dbRunAsync(db, 'DELETE FROM films WHERE id = ? AND authorId = ?', [pageId, userId]);
+    }
+}
+
 exports.listImages = async () => {
     return (await dbAllAsync(db, 'SELECT url FROM images'))
+}
+
+exports.getTitle = async () => {
+    return (await dbGetAsync(db,'SELECT title FROM title'))
+}
+
+exports.setTitle = async (title) => {
+    return (await dbRunAsync(db, 'UPDATE title SET title = ?', [title]))
 }

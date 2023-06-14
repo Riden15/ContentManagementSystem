@@ -9,6 +9,7 @@ const userDao = require('./user-dao'); // module for accessing the user info in 
 const cors = require('cors');
 
 const session = require("express-session");
+const {deletePage} = require("./pages-dao");
 const LocalStrategy = require("passport-local").Strategy;
 
 // init express
@@ -52,7 +53,6 @@ passport.use(new LocalStrategy(
 // serialize and de-serialize the user (user object <-> session)
 // we serialize the user id and we store it in the session: the session is very small in this way
 passport.serializeUser((user, done) => {
-    console.log(user);
     done(null, user.id);
 });
 
@@ -161,7 +161,6 @@ app.post('/api/pages', isLoggedIn,
             const pageId = await pagesDao.createPage(pagina);
             for (const block of req.body.blocks) {
                 await pagesDao.createBlocks(block, pageId);
-                console.log('prova')
             }
             const newPage = await pagesDao.getPage(pageId);
             res.json(newPage);
@@ -171,14 +170,63 @@ app.post('/api/pages', isLoggedIn,
     }
 );
 
+
 /*
-    4. GET /api/images
+    4. DELETE /api/films/id
+    dato l'id di una pagina elimina dal database la pagina corrispondente e i suoi relativi blocchi
+ */
+app.delete('/api/pages/:id', isLoggedIn,
+    [ check('id').isInt() ],
+    async (req, res) => {
+        try {
+            await pagesDao.deletePage(req.params.id, req.user.admin, req.user.id);
+            res.status(200).json({});
+        } catch (err) {
+            res.status(503).json({ error: `Database error during the deletion of film ${req.params.id}: ${err} ` });
+        }
+    }
+);
+
+/*
+    5. GET /api/images
     ritorna la lista completa delle immagini del server (gli url)\
 */
 app.get('/api/images', async (req, res) => {
     try {
         const immagini = await pagesDao.listImages();
         setTimeout(() => res.json(immagini), answerDelay);
+    } catch {
+        res.status(500).json({errors: ["Database error"]});
+    }
+});
+
+/*
+    6. GET /api/title
+    ritorna il titolo della pagina
+*/
+app.get('/api/title', async (req, res) => {
+    try {
+        const title = await pagesDao.getTitle();
+        setTimeout(() => res.json(title), answerDelay);
+    } catch {
+        res.status(500).json({errors: ["Database error"]});
+    }
+});
+
+/*
+    7. PUT /api/title
+    cambia il titolo del sito
+*/
+app.put('/api/title', isLoggedIn, async (req, res) => {
+    try {
+        if (req.user.admin !== 1)
+        {
+            return res.status(422).json({errors: ["Only an admin can change the title"]})
+        }
+        else{
+            await pagesDao.setTitle(req.body.title);
+            setTimeout(() => res.status(200).json({}), answerDelay);
+        }
     } catch {
         res.status(500).json({errors: ["Database error"]});
     }
@@ -229,7 +277,7 @@ app.post('/api/sessions',
 /**
     2. Logout
  */
-app.delete("/api/session", isLoggedIn, (req, res) => {
+app.delete("/api/sessions/current", isLoggedIn, (req, res) => {
     req.logout(() => res.end());
 });
 

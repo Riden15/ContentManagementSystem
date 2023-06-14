@@ -74,10 +74,35 @@ async function addPage(page) {
     }))
 }
 
+function deletePage(PageId) {
+    return getJson(
+        fetch(SERVER_URL + "pages/" + PageId, {
+            method: 'DELETE',
+            credentials: 'include'
+        })
+    )
+}
+
+async function getTitle() {
+    return getJson(fetch(SERVER_URL + 'title'))
+}
+
+async function setTitle(title) {
+    return getJson(fetch(SERVER_URL + 'title',{
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(title)
+    }))
+}
+
 async function getImages() {
     return getJson(fetch(SERVER_URL + 'images',{ credentials: 'include' }))
 }
 
+/***   USERS APIs    ***/
 
 async function logIn(credentials) {
     let response = await fetch(SERVER_URL + 'sessions', {
@@ -146,5 +171,5 @@ async function logOut() {
     });
 }
 
-const API = { getPages, logIn, logOut, getCurrentSession, getPage, getImages ,addPage};
+const API = { getPages, logIn, logOut, getCurrentSession, getPage, getImages ,addPage, deletePage, getTitle, setTitle};
 export default API;

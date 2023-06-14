@@ -4,10 +4,10 @@ import './App.css'
 
 import { React, useState, useEffect } from 'react';
 import { Container, Toast } from 'react-bootstrap/'
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import {BrowserRouter, Routes, Route, Navigate, Link} from 'react-router-dom';
 
 import { Navigation } from './components/Navigation';
-import {LoadingLayout, MainLayout, NotFoundLayout,} from './components/MainLayout.jsx';
+import {LoadingLayout, BackOffice, NotFoundLayout,} from './components/BackOffice.jsx';
 import {LoginForm} from "./components/LoginForm.jsx";
 import MessageContext from './components/MessageCtx.js';
 import API from './API';
@@ -15,6 +15,8 @@ import {ComponentsList} from "./components/ComponentsList.jsx";
 import PageForm from "./components/PageForm.jsx";
 import AddLayout from "./components/AddLayout.jsx";
 import EditLayout from "./components/EditLayout.jsx";
+import {FrontOffice} from "./components/FrontOffice.jsx";
+import {Button, Spinner} from "react-bootstrap";
 
 
 function App() {
@@ -24,7 +26,8 @@ function App() {
   const [message, setMessage] = useState('');
 
   const [pages, setPages] = useState([[]]);
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(undefined);
+  const [title, setTitle] = useState('');
 
 
     useEffect(()=> {
@@ -43,6 +46,11 @@ function App() {
                     setDirty(false);
                 }).catch(e => { handleErrors(e); } )
             });
+
+            API.getTitle().then(title => {
+                setTitle(title.title);
+                setDirty(false);
+            }).catch(e => {handleErrors(e);})
         }
     }, [dirty])
 
@@ -56,6 +64,8 @@ function App() {
     const doLogOut = async () => {
         await API.logOut();
         setUser(undefined);
+        setLoading(true);
+        setDirty(true);
         /* set state to empty if appropriate */
     }
 
@@ -68,15 +78,15 @@ function App() {
         setMessage(msg); // WARN: a more complex application requires a queue of messages. In this example only last error is shown.
     }
 
-    // todo fare la route per back office front office
   return (
     <BrowserRouter>
       <MessageContext.Provider value={{handleErrors}}>
         <Container fluid className={'App'}>
-          <Navigation logOut={doLogOut} user={user}/>
+          <Navigation logOut={doLogOut} user={user} title={title} setTitle={setTitle} setDirty={setDirty}/>
             <Routes>
-                <Route path="/" element={loading ? <LoadingLayout/> :<MainLayout pages={pages} setPages={setPages} setDirty={setDirty}/> }/>
-                <Route path="add" element={<AddLayout setDirty={setDirty} user={user}/>}/>
+                <Route path="/" element={loading ? <LoadingLayout/> :<FrontOffice pages={pages} user={user}/> }/>
+                <Route path="/backOffice" element={user ? loading ? <LoadingLayout/> :<BackOffice pages={pages} setPages={setPages} setDirty={setDirty}/> : <Navigate reaplce to='/'/>}/>
+                <Route path="add" element={<AddLayout setDirty={setDirty} user={user} setLoading={setLoading}/>}/>
                 <Route path="edit/:pageId" element={<EditLayout pages={pages} setPages={setPages} setDirty={setDirty} user={user}/>}/>
                 <Route path="components/:pageId" element={<ComponentsList pages={pages}/>}/>
                 <Route path="/login" element={<LoginForm loginSuccessful={loginSuccessful} setLoading={setLoading}/> } />
@@ -90,5 +100,6 @@ function App() {
     </BrowserRouter>
   )
 }
+
 
 export default App

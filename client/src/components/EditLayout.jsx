@@ -9,21 +9,9 @@ function EditLayout(props) {
 
     const setDirty = props.setDirty;
     const {handleErrors} = useContext(MessageContext);
-
     const { pageId } = useParams();
-    const [page, setPage] = useState(null);
 
-    // todo togliere la useEffect visto che la pagina il client la ha già
-
-    useEffect(() => {
-        API.getPage(pageId)
-            .then(film => {
-                setPage(film);
-            })
-            .catch(e => {
-                handleErrors(e);
-            });
-    }, [pageId]);
+    const pagina = props.page.filter((p) => p.id ===pageId);
 
     // update a film into the list
     const editPage = (page) => {
@@ -33,7 +21,7 @@ function EditLayout(props) {
     }
 
     return (
-        page ? <PageForm page={page} editPage={editPage} /> : <></>
+        pagina ? <PageForm page={pagina} editPage={editPage} /> : <></>
     );
 
 }

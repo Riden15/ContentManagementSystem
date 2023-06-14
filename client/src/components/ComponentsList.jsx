@@ -1,7 +1,5 @@
 import {Link, useParams} from "react-router-dom";
 import {Button, Card, Carousel, ListGroup} from "react-bootstrap";
-import CarouselItem from 'react-bootstrap/CarouselItem'
-import pageList from "./PageList.jsx";
 import {React, useState} from "react";
 
 
