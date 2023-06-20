@@ -1,23 +1,22 @@
 import {useContext, useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {Link, useLocation, useNavigate} from "react-router-dom";
-import {Button, Col, Form, FormGroup, Image, InputGroup, Row} from "react-bootstrap";
+import {Alert, Button, Card, Col, Form, FormGroup, Image, InputGroup, Row} from "react-bootstrap";
 import API from "../API.js";
 import MessageContext from "./MessageCtx.js";
 
 
 function PageForm(props) {
 
-    // todo l'autore e il creation Date non deve essere modificabile
-    // todo controllare consistenza tra le date, sia nel client che nel server
-
 
     const [title, setTitle] = useState(props.page ? props.page.title : '');
-    const [author, setAuthor] = useState( props.user ? props.user.name: '');
+    const [author, setAuthor] = useState(props.page ? props.page.user.id : props.user.id);
     const [creationDate, setCreationDate] = useState(props.page ? props.page.creationDate.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'));
     const [publicationDate, setPublicationDate] = useState(props.page ? props.page.publicationDate.format('YYYY-MM-DD') : '')
-    const [arrayBlocks, setArrayBlocks] = useState([]);
-    const [imagesUrl, setImagesUrl] = useState([])
+    const [arrayBlocks, setArrayBlocks] = useState(props.page ? props.page.blocks : []);
+    const [imagesUrl, setImagesUrl] = useState([]);
+    const [usersList, setUsersList] = useState([]);
+    const [errorMessage, setErrorMessage] = useState('') ;
 
     const {handleErrors} = useContext(MessageContext);
 
@@ -60,6 +59,7 @@ function PageForm(props) {
                     return {
                         blockType: b.blockType,
                         content: b.content,
+                        id: b.id,
                         order: b.order-1
                     }
                 }
@@ -68,6 +68,7 @@ function PageForm(props) {
                     return {
                         blockType: b.blockType,
                         content: b.content,
+                        id: b.id,
                         order: b.order+1
                     }
                 }
@@ -85,6 +86,7 @@ function PageForm(props) {
                     return {
                         blockType: b.blockType,
                         content: b.content,
+                        id: b.id,
                         order: b.order+1
                     }
                 }
@@ -93,6 +95,7 @@ function PageForm(props) {
                     return {
                         blockType: b.blockType,
                         content: b.content,
+                        id: b.id,
                         order: b.order-1
                     }
                 }
@@ -107,7 +110,8 @@ function PageForm(props) {
                 return {
                     blockType: b.blockType,
                     content: content,
-                    order: b.order
+                    order: b.order,
+                    id: b.id
                 }
             }
             else return b
@@ -133,37 +137,93 @@ function PageForm(props) {
             .then(urls => {
                 setImagesUrl(urls);
             }).catch(e => {handleErrors(e)})
+    if(props.user.admin ===1) {
+        API.getUsers()
+            .then(users => {
+                const autore = users.find(obj => obj.id===author)
+                users.splice(users.indexOf(autore), 1);
+                users.unshift(autore)
+                setUsersList(users);
+            }).catch(e => {handleErrors(e)})
+    }
     }, [])
 
+    // todo controllare la data. deve essere minore di creation date e può anche essere vuota
     const handleSubmit = (event) => {
         event.preventDefault();
-
-        const pagina = {
-            title: title.trim(),
-            creationDate: creationDate,
-            publicationDate: publicationDate,
-            blocks: arrayBlocks
+        setErrorMessage('');
+        let valid = true;
+        let publication_Date = dayjs(publicationDate)
+        console.log(publication_Date)
+        if(dayjs(dayjs().format("YYYY-MM-DD")).diff(publication_Date) > 0){
+            setErrorMessage("Publication Date can't be in the past")
+            valid = false;
+        }
+        if (arrayBlocks.length<2){
+            setErrorMessage("You must insert at least one header and one between paragraph or image");
+            valid = false;
+        }
+        else{
+            let numHeaders=0,numPar=0,numImg=0;
+            let headInvalid=false,parInvalid=false,imgInvalid=false;
+            arrayBlocks.forEach((el) => {
+                if(el.blockType==="header"){
+                    numHeaders++;
+                    if(el.content === "")
+                        headInvalid=true;
+                }
+                else if(el.blockType==="paragraph"){
+                    numPar++;
+                    if(el.content === "")
+                        parInvalid=true;
+                }
+                else{
+                    numImg++;
+                    if(el.content === "")
+                        imgInvalid=true;
+                }
+            });
+            if(numHeaders===0){
+                setErrorMessage("You must insert at least one header");
+                valid = false;
+            }
+            if(numPar===0 && numImg===0){
+                setErrorMessage("You must insert at least one between paragraph or image");
+                valid = false;
+            }
         }
 
-        /* In this solution validations are executed through HTML.
-           If you prefer JavaScript validations, this is the right place for coding them. */
-
-        if(props.page) {
-            pagina.id = props.page.id;
-            props.editPage(pagina);
+        if(valid) {
+            if(props.page) {
+                const pagina = {
+                    title: title.trim(),
+                    publicationDate: publicationDate,
+                    authorId: author,
+                    blocks: arrayBlocks
+                }
+                pagina.id = props.page.id;
+                props.editPage(pagina);
+            }
+            else{
+                const pagina = {
+                    title: title.trim(),
+                    publicationDate: publicationDate,
+                    blocks: arrayBlocks
+                }
+                pagina.creationDate = creationDate;
+                props.addPage(pagina);
+            }
+            navigate(nextpage);
         }
-        else
-            props.addPage(pagina);
 
-        navigate('/');
     }
-
 
     return (
         <>
         <div className={'below-nav'}>
             <h1>Inserisci i dati di una pagina</h1>
         <Form className="block-example border border-primary rounded mb-0 form-padding " onSubmit={handleSubmit}>
+            {errorMessage ? <Alert variant='danger' dismissible onClick={()=>setErrorMessage('')}>{errorMessage}</Alert> : ''}
             <Form.Group className="mb-3">
                 <Form.Label>Title</Form.Label>
                 <Form.Control type="text" required={true} value={title} onChange={event => setTitle(event.target.value)}/>
@@ -171,7 +231,19 @@ function PageForm(props) {
 
             <Form.Group className="mb-3">
                 <Form.Label>Author</Form.Label>
-                <Form.Control type="text" value={author} disabled={true}/>
+
+                { props.user.admin ===1 ?
+                    <Form.Select aria-label="Default select example" disabled={props.user.admin!==1} required={true} onChange={event => setAuthor(event.target.value)}>
+                        {
+                            usersList.map((user, index) => (
+                                <option key={index} value={user.id}>{user.name}</option>
+                            ))
+                        }
+                    </Form.Select> :
+                    <Form.Control type="text" required={true} value={props.user.name} disabled={true}/>
+
+                }
+
             </Form.Group>
 
             <Form.Group className="mb-3">
@@ -181,13 +253,13 @@ function PageForm(props) {
 
             <Form.Group className="mb-3">
                 <Form.Label>Publication Date</Form.Label>
-                <Form.Control type="date" required={true} value={publicationDate} onChange={event => setPublicationDate(event.target.value)}/>
+                <Form.Control type="date" value={publicationDate} onChange={event => setPublicationDate(event.target.value)}/>
             </Form.Group>
 
             <br/>
 
-            {arrayBlocks.sort((a,b) => a.order - b.order).map((b) => <BlockForm
-                blocco={b} key={b.order} images={imagesUrl}
+            {arrayBlocks.sort((a,b) => a.order - b.order).map((b, index) => <BlockForm
+                blocco={b} key={index} images={imagesUrl}
                 sali={goUpOrder} scendi={goDownOrder}
                 editBlock={changeContent} deleteBlock={deleteBlock}/> )}
 
@@ -247,23 +319,25 @@ function BlockForm(props) {
                         </InputGroup>
                     </> :
                     <Row className="mb-3">
-                        <FormGroup className="mb-3">
-                        {images.map((i) => (
-                        <>
-                                <Form.Check onChange={event => props.editBlock(b.order, event.target.id)}
-                                            inline
-                                            name="group1"
-                                            type='radio'
-                                            id={i.url}
-                                />
-                                <Image src={i.url} thumbnail/>
-                        </>
-                        )
-                        )}
-                            <Button variant="outline-secondary" id="button-addon2" onClick={() => props.sali(b.order)}><i className="bi bi-arrow-up-circle"></i></Button>
-                            <Button variant="outline-secondary" id="button-addon2" onClick={() => props.scendi(b.order)}><i className="bi bi-arrow-down-circle"></i></Button>
-                            <Button variant="danger" id="button-addon2" onClick={() => props.deleteBlock(b.order)}><i className="bi bi-trash3"></i></Button>
-                        </FormGroup>
+                        {images.map((option, index) => (
+                                    <Col key={index}>
+                                     <Card className="text-center" border={b.content===option.url? "danger" : ""}
+                                           onClick={event => props.editBlock(b.order, option.url)}>
+                                         <Card.Body>
+                                             <Card.Img src={option.url} className={"cardImg"}/>
+                                             {
+                                                 b.content === option.url?
+                                                     <Card.Text>Selected</Card.Text> : false
+                                             }
+                                         </Card.Body>
+
+                                     </Card>
+                                    </Col>
+                                )
+                            )}
+                        <Col><Button variant="outline-secondary" id="button-addon2" onClick={() => props.sali(b.order)}><i className="bi bi-arrow-up-circle"></i></Button></Col>
+                        <Col><Button variant="outline-secondary" id="button-addon2" onClick={() => props.scendi(b.order)}><i className="bi bi-arrow-down-circle"></i></Button></Col>
+                        <Col><Button variant="danger" id="button-addon2" onClick={() => props.deleteBlock(b.order)}><i className="bi bi-trash3"></i></Button></Col>
                     </Row>
 
             }
