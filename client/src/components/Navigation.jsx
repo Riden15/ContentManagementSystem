@@ -66,9 +66,9 @@ const Navigation = (props) => {
                                 </Navbar.Text>
                                 <Button className='mx-2' variant='danger' onClick={props.logOut}>Logout</Button>
                             </> :
-                            <Navbar.Text className='fs-5' onClick={() => navigate('/login')}>
-                                {"Sign in"}
-                            </Navbar.Text> }
+                            <Button className='mx-2' onClick={() => navigate('/login')}>Sign In</Button>
+                        }
+
 
                     </Nav.Link>
 

@@ -96,7 +96,7 @@ app.get('/api/pages', async (req, res) => {
         const pagine = await pagesDao.listPages('published');
         setTimeout(() => res.json(pagine), answerDelay);
     } catch {
-        res.status(500).json({errors: ["Database error"]});
+        res.status(503).json({errors: ["Database error"]});
     }
 });
 
@@ -117,7 +117,7 @@ app.get('/api/pages/:id', isLoggedIn, [check('id').isInt({min:1})],
         else
             setTimeout(()=>res.json(result), answerDelay);
     } catch(err) {
-        res.status(500).end();
+        res.status(503).json({errors: ["Database error"]});
     }
 });
 
@@ -129,13 +129,12 @@ app.post('/api/pages', isLoggedIn,
     [
         check('title').isLength({min:1}).withMessage("Title can't be less that one character"),
         check('creationDate').isDate({format: "YYYY-MM-DD"}).withMessage("Date must be of format YYYY-MM-DD"),
-        check('publicationDate').isDate({format: "YYYY-MM-DD"}).withMessage("Date must be of format YYYY-MM-DD"),
-        check('blocks.*.blockType').isIn(["header", "paragrafo", "immagine"]),
+        check('blocks.*.blockType').isIn(["Header", "Paragrafo", "Immagine"]),
         check("blocks").custom( b => {
             let header=false, par=false, image=false;
-            header = b.filter((e) => e.blockType==="header").length>0;
-            par = b.filter((e) => e.blockType==="paragrafo").length>0;
-            image = b.filter((e) => e.blockType==="immagine").length>0;
+            header = b.filter((e) => e.blockType==="Header").length>0;
+            par = b.filter((e) => e.blockType==="Paragrafo").length>0;
+            image = b.filter((e) => e.blockType==="Immagine").length>0;
             return header && (par || image);
         }).withMessage("You must insert at least one header and one between paragraph or image"),
         check("blocks.*.content").notEmpty().withMessage("Content must be specified"),
@@ -152,11 +151,6 @@ app.post('/api/pages', isLoggedIn,
             creationDate: req.body.creationDate,
             publicationDate: req.body.publicationDate
         }
-        const blocks=req.body.blocks.map((blocco) => ({
-            blockType: blocco.blockType,
-            content: blocco.content,
-            order: blocco.order
-        }))
         try{
             const pageId = await pagesDao.createPage(pagina);
             for (const block of req.body.blocks) {
@@ -172,49 +166,129 @@ app.post('/api/pages', isLoggedIn,
 
 
 /*
-    4. DELETE /api/films/id
+    4. PUT /api/pages
+    Modifica una pagina dando tutte le informazioni necessarie
+ */
+app.put('/api/pages/:id', isLoggedIn,
+    [
+        check('title').isLength({min:1}).withMessage("Title can't be less that one character"),
+        check('blocks.*.blockType').isIn(["Header", "Paragrafo", "Immagine"]),
+        check("blocks").custom( b => {
+            let header=false, par=false, image=false;
+            header = b.filter((e) => e.blockType==="Header").length>0;
+            par = b.filter((e) => e.blockType==="Paragrafo").length>0;
+            image = b.filter((e) => e.blockType==="Immagine").length>0;
+            return header && (par || image);
+        }).withMessage("You must insert at least one header and one between paragraph or image"),
+        check("blocks.*.content").notEmpty().withMessage("Content must be specified"),
+        check("blocks.*.order").notEmpty().withMessage("Order must be specified").isNumeric().withMessage("Order must be a number")
+    ],
+    async (req, res) => {
+        const errors = validationResult(req).formatWith(errorFormatter); // format error message
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ error: errors.array().join(", ") }); // error message is a single string with all error joined together
+        }
+        // Is the id in the body equal to the id in the url?
+        if (req.body.id !== Number(req.params.id)) {
+            return res.status(422).json({ error: 'URL and body id mismatch' });
+        }
+
+        let pagina = {}
+        if(req.user.admin ===1)
+        {
+            pagina = {
+                id: req.body.id,
+                title: req.body.title,
+                publicationDate: req.body.publicationDate,
+                authorId: req.body.authorId}
+        }
+        else {
+            pagina = {
+                id: req.body.id,
+                title: req.body.title,
+                publicationDate: req.body.publicationDate}
+        }
+
+        const owner = await pagesDao.getOwner(req.params.id);
+        if(!owner) return res.status(404).json({ error: 'Page id not valid' });
+
+        if(req.user.admin ===1 || req.user.id === owner.authorId)
+        {
+            await pagesDao.updatePage(pagina, req.user.admin, req.user.id);
+            await pagesDao.deleteBlocks(pagina.id);
+            for (const block of req.body.blocks) {
+                await pagesDao.createBlocks(block, pagina.id);
+            }
+            const newPage = await pagesDao.getPage(req.body.id);
+            res.json(newPage);
+        }
+        else {
+            return res.status(422).json({ error: 'The User is not the author of the selected page' });
+        }
+        try{
+
+        } catch (err) {
+            res.status(503).json({ error: `Database error during the creation of new page and related blocks: ${err}` });
+        }
+    }
+);
+
+
+/*
+    5. DELETE /api/pages/id
     dato l'id di una pagina elimina dal database la pagina corrispondente e i suoi relativi blocchi
  */
 app.delete('/api/pages/:id', isLoggedIn,
     [ check('id').isInt() ],
     async (req, res) => {
         try {
-            await pagesDao.deletePage(req.params.id, req.user.admin, req.user.id);
+
+            const owner = await pagesDao.getOwner(req.params.id);
+            if(!owner) return res.status(404).json({ error: 'Page id not valid' });
+
+            if(req.user.admin ===1 || req.user.id === owner.authorId)
+            {
+                await pagesDao.deletePage(req.params.id, req.user.admin, req.user.id);
+                await pagesDao.deleteBlocks(req.params.id);
+            }
+            else {
+                return res.status(422).json({ error: 'The User is not the author of the selected page' });
+            }
             res.status(200).json({});
         } catch (err) {
-            res.status(503).json({ error: `Database error during the deletion of film ${req.params.id}: ${err} ` });
+            res.status(503).json({ error: `Database error during the deletion of page ${req.params.id}: ${err} ` });
         }
     }
 );
 
 /*
-    5. GET /api/images
+    6. GET /api/images
     ritorna la lista completa delle immagini del server (gli url)\
 */
 app.get('/api/images', async (req, res) => {
     try {
         const immagini = await pagesDao.listImages();
-        setTimeout(() => res.json(immagini), answerDelay);
+        res.json(immagini)
     } catch {
-        res.status(500).json({errors: ["Database error"]});
+        res.status(503).json({errors: ["Database error"]});
     }
 });
 
 /*
-    6. GET /api/title
+    7. GET /api/title
     ritorna il titolo della pagina
 */
 app.get('/api/title', async (req, res) => {
     try {
         const title = await pagesDao.getTitle();
-        setTimeout(() => res.json(title), answerDelay);
+        res.json(title)
     } catch {
-        res.status(500).json({errors: ["Database error"]});
+        res.status(503).json({errors: ["Database error"]});
     }
 });
 
 /*
-    7. PUT /api/title
+    8. PUT /api/title
     cambia il titolo del sito
 */
 app.put('/api/title', isLoggedIn, async (req, res) => {
@@ -228,16 +302,15 @@ app.put('/api/title', isLoggedIn, async (req, res) => {
             setTimeout(() => res.status(200).json({}), answerDelay);
         }
     } catch {
-        res.status(500).json({errors: ["Database error"]});
+        res.status(503).json({errors: ["Database error"]});
     }
 });
 
-// todo controllare se la data di pubblicazione e creazione sono coerenti
 
 /***   USERS APIs    ***/
 
 /*
-    1. POST /sessions
+    1. POST /api/sessions
     login
     ritorna la lista completa delle pagine (per darla agli utenti autenticati)
 */
@@ -245,12 +318,12 @@ app.post('/api/sessions',
     body("username", "username is not a valid email").isEmail(),
     body("password", "password must be a non-empty string").isString().notEmpty(),
     function(req, res, next) {
-        // check if valdation is ok
+        // check if validation is ok
         const err = validationResult(req);
         const errList=[];
         if (!err.isEmpty()) {
             errList.push(...err.errors.map(e => e.msg));
-            return res.status(400).json({errors: errList});
+            return res.status(422).json({errors: errList});
         }
 
         // actual authentication
@@ -266,7 +339,7 @@ app.post('/api/sessions',
                             const pagine = await pagesDao.listPages();
                             setTimeout(() => res.json({id: req.user.id, name: req.user.name, email: req.user.email, admin:req.user.admin, pagine}), answerDelay);
                         } catch {
-                            res.status(500).json({errors: ["Database error"]});
+                            res.status(503).json({errors: ["Database error"]});
                         }
                     }
                 });
@@ -282,7 +355,7 @@ app.delete("/api/sessions/current", isLoggedIn, (req, res) => {
 });
 
 /*
-    3. GET /sessions/current
+    3. GET api/sessions/current
     controlla se l'utente è loggato o no
     in caso di risposta positiva ritorna la lista completa di pagine
 */
@@ -292,12 +365,32 @@ app.get('/api/sessions/current', async (req, res) => {
             const pagine = await pagesDao.listPages();
             setTimeout(() => res.json({id: req.user.id, name: req.user.name, email: req.user.email, admin:req.user.admin, pagine}), answerDelay);
         } catch {
-            res.status(500).json({errors: ["Database error"]});
+            res.status(503).json({errors: ["Database error"]});
         }
     } else
         res.status(401).json({error: 'Unauthenticated user!'});
 
 });
+
+/*
+    4. GET /api/users
+    ritorna la lista completa di utenti (solo il nome e l'id)
+ */
+
+app.get('/api/users', isLoggedIn, async (req, res) => {
+    try {
+        if (req.user.admin !== 1)
+        {
+            return res.status(422).json({errors: ["Only an admin can have the list of users"]})
+        }
+        const title = await userDao.getUsers();
+        res.json(title)
+    } catch {
+        res.status(503).json({errors: ["Database error"]});
+    }
+});
+
+
 
 /***    Other express-related instructions     ***/
 

@@ -16,7 +16,7 @@ GET http://localhost:3001/api/sessions/current HTTP/1.1
 DELETE http://localhost:3001/api/sessions/current HTTP/1.1
 ###
 
-## get all the pages if the user is logged or just the pushished ones
+## get all the pages that are published
 GET http://localhost:3001/api/pages HTTP/1.1
 ###
 
@@ -30,17 +30,16 @@ content-type: application/json
 
 {
     "title": "prova",
-    "favorite": 1,
     "creationDate": "2023-06-13",
     "publicationDate": "2023-06-13",
     "blocks": [
       {
-        "blockType": "header",
+        "blockType": "Header",
         "content": "prova header",
         "order": 1
       },
       {
-        "blockType": "paragrafo",
+        "blockType": "Paragrafo",
         "content": "prova paragrafo",
         "order": 2
       }
@@ -48,8 +47,29 @@ content-type: application/json
 }
 ###
 
-## get the list of images
-GET http://localhost:3001/api/title HTTP/1.1
+## modifica una pagina se l'utente è loggato
+PUT http://localhost:3001/api/pages/1 HTTP/1.1
+content-type: application/json
+
+{
+  "id": 1,
+  "title": "prova modifica",
+  "authorId": 1,
+  "creationDate": "2023-06-13",
+  "publicationDate": "2023-06-13",
+  "blocks": [
+    {
+      "blockType": "Header",
+      "content": "prova header modifica",
+      "order": 1
+    },
+    {
+      "blockType": "Paragrafo",
+      "content": "prova paragrafo modifica",
+      "order": 2
+    }
+  ]
+}
 ###
 
 ## change title
@@ -57,8 +77,16 @@ PUT http://localhost:3001/api/title HTTP/1.1
 content-type: application/json
 
 {
-  "title": "CMS"
+  "title": "Content Management system"
 }
+###
+
+## get the title
+GET http://localhost:3001/api/title HTTP/1.1
+###
+
+## elimina una pagina se l'utente è loggato
+DELETE http://localhost:3001/api/pages/1 HTTP/1.1
 ###
 
 ## get the list of images
@@ -69,4 +97,7 @@ GET http://localhost:3001/api/images HTTP/1.1
 GET http://localhost:3001/images/chatting.webp HTTP/1.1
 ###
 
+## get the list of users (just id and name)
+GET http://localhost:3001/api/users HTTP/1.1
+###
 

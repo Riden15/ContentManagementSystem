@@ -4,7 +4,7 @@ import './App.css'
 
 import { React, useState, useEffect } from 'react';
 import { Container, Toast } from 'react-bootstrap/'
-import {BrowserRouter, Routes, Route, Navigate, Link} from 'react-router-dom';
+import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
 
 import { Navigation } from './components/Navigation';
 import {LoadingLayout, BackOffice, NotFoundLayout,} from './components/BackOffice.jsx';
@@ -12,11 +12,9 @@ import {LoginForm} from "./components/LoginForm.jsx";
 import MessageContext from './components/MessageCtx.js';
 import API from './API';
 import {ComponentsList} from "./components/ComponentsList.jsx";
-import PageForm from "./components/PageForm.jsx";
 import AddLayout from "./components/AddLayout.jsx";
 import EditLayout from "./components/EditLayout.jsx";
 import {FrontOffice} from "./components/FrontOffice.jsx";
-import {Button, Spinner} from "react-bootstrap";
 
 
 function App() {
@@ -39,18 +37,13 @@ function App() {
                 setPages(user_withPages.pagine)
                 setLoading(false);
                 setDirty(false);
-            }).catch(err => {
+            }).catch(() => {
                 API.getPages().then(pages => {
                     setPages(pages);
                     setLoading(false);
                     setDirty(false);
                 }).catch(e => { handleErrors(e); } )
             });
-
-            API.getTitle().then(title => {
-                setTitle(title.title);
-                setDirty(false);
-            }).catch(e => {handleErrors(e);})
         }
     }, [dirty])
 
@@ -70,7 +63,7 @@ function App() {
     }
 
     // If an error occurs, the error message will be shown in a toast.
-    const handleErrors = (err) => { //todo da rifare, magari mettendo un toast
+    const handleErrors = (err) => {
         let msg = '';
         if (err.error) msg = err.error;
         else if (String(err) === "string") msg = String(err);
@@ -85,9 +78,9 @@ function App() {
           <Navigation logOut={doLogOut} user={user} title={title} setTitle={setTitle} setDirty={setDirty}/>
             <Routes>
                 <Route path="/" element={loading ? <LoadingLayout/> :<FrontOffice pages={pages} user={user}/> }/>
-                <Route path="/backOffice" element={user ? loading ? <LoadingLayout/> :<BackOffice pages={pages} setPages={setPages} setDirty={setDirty}/> : <Navigate reaplce to='/'/>}/>
-                <Route path="add" element={<AddLayout setDirty={setDirty} user={user} setLoading={setLoading}/>}/>
-                <Route path="edit/:pageId" element={<EditLayout pages={pages} setPages={setPages} setDirty={setDirty} user={user}/>}/>
+                <Route path="/backOffice" element={user ? loading ? <LoadingLayout/> :<BackOffice pages={pages} setPages={setPages} setDirty={setDirty} user={user}/> : <Navigate reaplce to='/'/>}/>
+                <Route path="add" element={user ? <AddLayout pages={pages} setPages={setPages} setDirty={setDirty} user={user}/> : <Navigate reaplce to='/'/>}/>
+                <Route path="edit/:pageId" element={user ? <EditLayout pages={pages} setPages={setPages} setDirty={setDirty} user={user}/> : <Navigate reaplce to='/'/>}/>
                 <Route path="components/:pageId" element={<ComponentsList pages={pages}/>}/>
                 <Route path="/login" element={<LoginForm loginSuccessful={loginSuccessful} setLoading={setLoading}/> } />
                 <Route path="*" element={<NotFoundLayout />} />

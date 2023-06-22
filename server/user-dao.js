@@ -4,7 +4,6 @@
 const crypto = require('crypto');
 const db = require('./database');
 
-
 exports.getUserById = (id) => {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM users WHERE id = ?';
@@ -48,3 +47,13 @@ exports.getUser = (email, password) => {
         });
     });
 };
+
+exports.getUsers = () => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT name, id from users';
+        db.all(sql, [], (err, rows) => {
+            if (err) reject(err);
+            else     resolve(rows);
+        })
+    })
+}

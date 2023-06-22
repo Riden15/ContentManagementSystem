@@ -18,7 +18,6 @@ function LoginForm(props) {
                 navigate('/backOffice');
             })
             .catch(err => {
-                // todo Generic error message, should not give additional info (e.g., if user exists etc.)
                 setErrorMessage('Wrong username or password');
             })
     }
@@ -36,13 +35,13 @@ function LoginForm(props) {
         {
             doLogIn(credentials);
         } else {
-            // TODO: show a better error message...
+            // todo show a better error message...
             setErrorMessage('Error(s) in the form, please fix it/them.')
         }
     };
 
     return (
-        <Container>
+        <Container className="below-nav">
             <Row>
                 <Col xs={3}></Col>
                 <Col xs={6}>
@@ -51,11 +50,11 @@ function LoginForm(props) {
                         {errorMessage ? <Alert variant='danger' dismissible onClick={()=>setErrorMessage('')}>{errorMessage}</Alert> : ''}
                         <Form.Group controlId='username'>
                             <Form.Label>Email</Form.Label>
-                            <Form.Control type='email' value={username} onChange={ev => setUsername(ev.target.value)} />
+                            <Form.Control type='email' required={true} value={username} onChange={ev => setUsername(ev.target.value)} />
                         </Form.Group>
                         <Form.Group controlId='password'>
                             <Form.Label>Password</Form.Label>
-                            <Form.Control type='password' value={password} onChange={ev => setPassword(ev.target.value)} />
+                            <Form.Control type='password' required={true} value={password} onChange={ev => setPassword(ev.target.value)} />
                         </Form.Group>
                         <Button className='my-2' type='submit'>Login</Button>
                         <Button className='my-2 mx-2' variant='danger' onClick={()=>navigate("/")}>Cancel</Button>

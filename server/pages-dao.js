@@ -63,15 +63,22 @@ exports.listPages = async (filter='') => {
     return pages;
 };
 
+exports.getOwner = async (id) => {
+    return await dbGetAsync(db, 'SELECT authorId FROM pages WHERE id=?', [id])
+}
+
 // get the page identified by {id}
 exports.getPage = async (id) => {
 
     const pagina = await dbGetAsync(db, 'SELECT * FROM pages WHERE id=?', [id])
     const blocchi = await dbAllAsync(db, 'SELECT * FROM blocks WHERE pageId=?', [id])
+    const users = (await dbAllAsync(db, "select id, name, admin from users"));
     if(!pagina) return {error: 'Pagina non trovata.'};
     else if(blocchi.length)
     {
+        pagina.user=users.find(u => u.id === pagina.authorId);
         pagina.blocks=[];
+        delete pagina.authorId;
         for (const element of blocchi) {
             if (blocchi.length) pagina.blocks.push(element);
             delete element.pageId // non serve perchè un blocco viene ritornato collegato alla sua pagina
@@ -94,27 +101,40 @@ exports.createPage = async (pagina) => {
     })
 }
 
+exports.updatePage = async (pagina, admin, userId) => {
+    if(admin===1)
+    {
+        return await dbRunAsync(db, 'UPDATE pages SET title = ?, publicationDate = ?, authorId = ? WHERE id = ?',
+            [pagina.title, pagina.publicationDate, pagina.authorId, pagina.id]);
+    }
+    else {
+        return await dbRunAsync(db, 'UPDATE pages SET title = ?, publicationDate = ? WHERE id = ? AND authorId = ?',
+            [pagina.title, pagina.publicationDate, pagina.id, userId]);
+    }
+}
+
 exports.createBlocks = async (block, pageId) => {
-    return new Promise((resolve, reject) => {
-        const sql = 'INSERT INTO blocks (blockType, pageId, content, "order") VALUES(?, ?, ?, ?)'
-        db.run(sql, [block.blockType, pageId, block.content, block.order], function (err) {
-                if(err) {
-                    reject(err);
-                }
-                resolve()
-            }
-        )
-    })
+    return await dbRunAsync(db, 'INSERT INTO blocks (blockType, pageId, content, "order") VALUES(?, ?, ?, ?)',
+        [block.blockType, pageId, block.content, block.order]);
+}
+
+exports.updateBlocks = async (block) => {
+    return await dbRunAsync(db, 'UPDATE blocks SET blockType = ?, content = ?, "order" = ? WHERE id = ?',
+        [block.blockType, block.content, block.order, block.id])
 }
 
 exports.deletePage = async (pageId, admin, userId) => {
     if(admin===1)
     {
-        return await dbRunAsync(db, 'DELETE FROM films WHERE id = ?', [pageId]);
+        return await dbRunAsync(db, 'DELETE FROM pages WHERE id = ?', [pageId]);
     }
     else {
-        return await dbRunAsync(db, 'DELETE FROM films WHERE id = ? AND authorId = ?', [pageId, userId]);
+        return await dbRunAsync(db, 'DELETE FROM pages WHERE id = ? AND authorId = ?', [pageId, userId]);
     }
+}
+
+exports.deleteBlocks = async (pageId) => {
+    return await dbAllAsync(db, 'DELETE FROM blocks WHERE pageId = ?', [pageId]);
 }
 
 exports.listImages = async () => {

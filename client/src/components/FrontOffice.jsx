@@ -9,12 +9,11 @@ import dayjs from "dayjs";
 
 function FrontOffice(props) {
 
-    const {handleErrors} = useContext(MessageContext);
     const user = props.user;
 
     return (
         <>
-            <h1 className="below-nav">Lista delle pagine: FrontOffice</h1>
+            <h1 className="below-nav">Lista delle pagine: Front Office</h1>
             <PageListFrontOffice pages={props.pages} user={user}/>
             {user ?
                 <Link className="btn btn-primary btn-lg" to="backOffice"> Go to Back Office </Link> :
@@ -44,7 +43,7 @@ function PageListFrontOffice(props) {
                 <tbody>
                 {
                     user ?
-                        pageList.filter((page) => (!page.publicationDate.isAfter(dayjs()))).map((page) =>
+                        pageList.filter((page) => ( page.publicationDate.isValid() && !page.publicationDate.isAfter(dayjs()))).map((page) =>
                             <PageRow key={page.id} pageData={page} user={user}/>) :
                         pageList.map((page) => <PageRow key={page.id} pageData={page} user={user}/>)
                 }
@@ -78,8 +77,6 @@ function PageRow(props) {
             break;
     }
 
-
-    //todo capire perchè non va la location
     return (
         <tr className={statusClass}>
             <td>

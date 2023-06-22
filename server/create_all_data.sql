@@ -45,12 +45,12 @@ INSERT INTO pages VALUES (1, 'Titolo1', 1, '2023-06-06', '2023-06-09');
 INSERT INTO pages VALUES (2, 'Titolo2', 2, '2023-06-06', '2023-06-09');
 INSERT INTO pages VALUES (3, 'Titolo3', 3, '2023-06-06', '2024-06-09');
 
-INSERT INTO blocks VALUES (1, 'header', 1, 'header pagina 1', 1);
-INSERT INTO blocks VALUES (2, 'immagine', 1, 'http://localhost:3001/images/chatting.webp', 2);
-INSERT INTO blocks VALUES (3, 'header', 2, 'header pagina 2', 1);
-INSERT INTO blocks VALUES (4, 'paragrafo', 2, 'paragrafo pagina 2', 2);
-INSERT INTO blocks VALUES (5, 'header', 3, 'header pagina 3', 1);
-INSERT INTO blocks VALUES (6, 'immagine', 3, 'http://localhost:3001/images/ok.webp', 2);
+INSERT INTO blocks VALUES (1, 'Header', 1, 'header pagina 1', 1);
+INSERT INTO blocks VALUES (2, 'Immagine', 1, 'http://localhost:3001/images/chatting.webp', 2);
+INSERT INTO blocks VALUES (3, 'Header', 2, 'header pagina 2', 1);
+INSERT INTO blocks VALUES (4, 'Paragrafo', 2, 'paragrafo pagina 2', 2);
+INSERT INTO blocks VALUES (5, 'Header', 3, 'header pagina 3', 1);
+INSERT INTO blocks VALUES (6, 'Immagine', 3, 'http://localhost:3001/images/ok.webp', 2);
 
 INSERT INTO images VALUES (1, 'http://localhost:3001/images/chatting.webp');
 INSERT INTO images VALUES (2, 'http://localhost:3001/images/ok.webp');

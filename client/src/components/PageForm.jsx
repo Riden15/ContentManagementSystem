@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {Link, useLocation, useNavigate} from "react-router-dom";
-import {Alert, Button, Card, Col, Form, FormGroup, Image, InputGroup, Row} from "react-bootstrap";
+import {Alert, Button, Card, Col, Form, InputGroup, Row} from "react-bootstrap";
 import API from "../API.js";
 import MessageContext from "./MessageCtx.js";
 
@@ -10,9 +10,9 @@ function PageForm(props) {
 
 
     const [title, setTitle] = useState(props.page ? props.page.title : '');
-    const [author, setAuthor] = useState(props.page ? props.page.user.id : props.user.id);
+    const [author, setAuthor] = useState(props.page ? {id: props.page.user.id, name: props.page.user.name} : {id: props.user.id, name: props.user.name});
     const [creationDate, setCreationDate] = useState(props.page ? props.page.creationDate.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'));
-    const [publicationDate, setPublicationDate] = useState(props.page ? props.page.publicationDate.format('YYYY-MM-DD') : '')
+    const [publicationDate, setPublicationDate] = useState(props.page && props.page.publicationDate.isValid() ? props.page.publicationDate.format('YYYY-MM-DD') : '')
     const [arrayBlocks, setArrayBlocks] = useState(props.page ? props.page.blocks : []);
     const [imagesUrl, setImagesUrl] = useState([]);
     const [usersList, setUsersList] = useState([]);
@@ -28,7 +28,7 @@ function PageForm(props) {
     const addBlockHeader = () => {
 
         const block = {
-            blockType: 'header',
+            blockType: 'Header',
             content: '',
             order: arrayBlocks.length +1
         }
@@ -36,7 +36,7 @@ function PageForm(props) {
     }
     const addBlockParagraph = () => {
         const block = {
-            blockType: 'paragrafo',
+            blockType: 'Paragrafo',
             content: '',
             order: arrayBlocks.length +1
         }
@@ -44,7 +44,7 @@ function PageForm(props) {
     }
     const addBlockImage = () => {
         const block = {
-            blockType: 'immagine',
+            blockType: 'Immagine',
             content: '',
             order: arrayBlocks.length +1
         }
@@ -140,7 +140,7 @@ function PageForm(props) {
     if(props.user.admin ===1) {
         API.getUsers()
             .then(users => {
-                const autore = users.find(obj => obj.id===author)
+                const autore = users.find(obj => obj.id===author.id)
                 users.splice(users.indexOf(autore), 1);
                 users.unshift(autore)
                 setUsersList(users);
@@ -148,15 +148,14 @@ function PageForm(props) {
     }
     }, [])
 
-    // todo controllare la data. deve essere minore di creation date e può anche essere vuota
     const handleSubmit = (event) => {
         event.preventDefault();
         setErrorMessage('');
         let valid = true;
-        let publication_Date = dayjs(publicationDate)
-        console.log(publication_Date)
-        if(dayjs(dayjs().format("YYYY-MM-DD")).diff(publication_Date) > 0){
-            setErrorMessage("Publication Date can't be in the past")
+        let publication_Date = dayjs(publicationDate);
+        let creation_Date = dayjs(creationDate);
+        if(publication_Date.isValid() && creation_Date.diff(publication_Date) > 0){
+            setErrorMessage("Publication Date can't be before the creation Date");
             valid = false;
         }
         if (arrayBlocks.length<2){
@@ -167,12 +166,12 @@ function PageForm(props) {
             let numHeaders=0,numPar=0,numImg=0;
             let headInvalid=false,parInvalid=false,imgInvalid=false;
             arrayBlocks.forEach((el) => {
-                if(el.blockType==="header"){
+                if(el.blockType==="Header"){
                     numHeaders++;
                     if(el.content === "")
                         headInvalid=true;
                 }
-                else if(el.blockType==="paragraph"){
+                else if(el.blockType==="Paragrafo"){
                     numPar++;
                     if(el.content === "")
                         parInvalid=true;
@@ -196,21 +195,22 @@ function PageForm(props) {
         if(valid) {
             if(props.page) {
                 const pagina = {
+                    id: props.page.id,
                     title: title.trim(),
                     publicationDate: publicationDate,
-                    authorId: author,
+                    authorId: author.id,
                     blocks: arrayBlocks
                 }
-                pagina.id = props.page.id;
                 props.editPage(pagina);
             }
             else{
                 const pagina = {
                     title: title.trim(),
                     publicationDate: publicationDate,
-                    blocks: arrayBlocks
+                    creationDate: creationDate,
+                    blocks: arrayBlocks,
+                    user: {name: author.name, id:author.id}
                 }
-                pagina.creationDate = creationDate;
                 props.addPage(pagina);
             }
             navigate(nextpage);
@@ -285,7 +285,7 @@ function BlockForm(props) {
 
     return(
         <>
-            { b.blockType==='header' ?
+            { b.blockType==='Header' ?
                 <>
                     <InputGroup className="mb-3">
                         <InputGroup.Text id="basic-addon1">Header</InputGroup.Text>
@@ -302,7 +302,7 @@ function BlockForm(props) {
                     </InputGroup>
                 </>
 
-                : b.blockType==='paragrafo' ?
+                : b.blockType==='Paragrafo' ?
                     <>
                         <InputGroup className="mb-3">
                             <InputGroup.Text id="basic-addon1">Paragrafo</InputGroup.Text>

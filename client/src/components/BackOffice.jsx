@@ -1,19 +1,28 @@
-import {React, useContext, useState, useEffect} from 'react';
-import {Row, Col, Button, Spinner, Table} from 'react-bootstrap';
+import {React, useContext} from 'react';
+import {Button, Spinner, Table} from 'react-bootstrap';
 import MessageContext from './MessageCtx.js';
 import API from '../API';
-import {Link, Outlet, useLocation} from "react-router-dom";
-import dayjs from "dayjs";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 
 
 function BackOffice(props) {
 
     const {handleErrors} = useContext(MessageContext);
+    const navigate = useNavigate();
+    const location = useLocation();
     const user = props.user;
 
     const deletePage = (pageId) => {
         API.deletePage(pageId)
             .then(() => {
+                props.setPages(oldPages => {
+                    return oldPages.map(p => {
+                        if (pageId === p.id)
+                            return {...p, status: "deleted"}
+                        else return p;
+                    })
+                })
+
                 props.setDirty(true);
             })
             .catch(err => {
@@ -21,15 +30,15 @@ function BackOffice(props) {
             })
     }
 
-    // todo da aggiunge il controllo se l'utente è admin, il tasto add non ci deve essere
     return (
         <>
             <h1 className="below-nav">Lista delle pagine: Back Office</h1>
             <PageListBackOffice pages={props.pages} deletePage={deletePage} user={user}/>
-            <Link className="btn btn-primary btn-lg fixed-right-bottom" to="/add"
-                  state={{nextpage: location.pathname}}> &#43; </Link>
-            <Link className="btn btn-primary btn-lg" to="/"> Go back to Front Office </Link>
-
+            <Link className="btn btn-primary btn btn-primary btn-lg fixed-right-bottom"
+                     state={{nextpage: location.pathname}} to={"/add"} size="lg">
+                &#43;
+            </Link>
+            <Link className="btn btn-primary btn-lg" to="/"> Go to Front Office </Link>
         </>
     );
 }
@@ -52,7 +61,7 @@ function PageListBackOffice(props) {
                 </tr>
                 </thead>
                 <tbody>
-                {pageList.map((page) => <PageRow key={page.id} pageData={page} user={user}/>)}
+                {pageList.map((page, index) => <PageRow key={index} deletePage={props.deletePage} pageData={page} user={user}/>)}
                 </tbody>
             </Table>
 
@@ -61,12 +70,12 @@ function PageListBackOffice(props) {
 }
 
 function PageRow(props) {
+    const navigate = useNavigate();
     const formatWatchDate = (dayJsDate, format) => {
         return dayJsDate ? dayJsDate.format(format) : '';
     }
 
     const location = useLocation();
-
     let statusClass = null;
 
     switch (props.pageData.status) {
@@ -95,20 +104,19 @@ function PageRow(props) {
                 <p>{formatWatchDate(props.pageData.creationDate, 'MMMM D, YYYY')}</p>
             </td>
             <td>
-                <p>{formatWatchDate(props.pageData.publicationDate, 'MMMM D, YYYY')}</p>
+                <p>{props.pageData.publicationDate.isValid() ? formatWatchDate(props.pageData.publicationDate, 'MMMM D, YYYY') : ''}</p>
             </td>
             <td>
-                <Link className="btn btn-primary" to={"/edit/" + props.pageData.id}
-                      state={{nextpage: location.pathname}}>
-                    <i className="bi bi-pencil-square"/>
+                <Link className= {props.user.admin!==1 && props.pageData.user.id !== props.user.id || props.pageData.status ? "btn btn-primary disabled" : "btn btn-primary"}
+                      state={{nextpage: location.pathname}} to={("/edit/" + props.pageData.id)}>
+                    <i className="bi bi-pencil-square" />
                 </Link>
                 &nbsp;
-                <Button variant='danger' onClick={() => props.deletePage(props.pageData.id)}>
+                <Button variant='danger' disabled={props.user.admin!==1 && props.pageData.user.id !== props.user.id || props.pageData.status} onClick={() =>props.deletePage(props.pageData.id)}>
                     <i className="bi bi-trash"/>
                 </Button>
                 &nbsp;
-                <Link className="btn btn-primary" to={"/components/" + props.pageData.id}
-                      state={{nextpage: location.pathname}}>
+                <Link className={props.pageData.status ? "btn btn-primary disabled" : "btn btn-primary"} state={{nextpage: location.pathname}} to={("/components/" + props.pageData.id)}>
                     <i className="bi bi-eye"></i>
                 </Link>
 

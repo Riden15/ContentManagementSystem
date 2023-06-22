@@ -52,13 +52,13 @@ async function getPage(id) {
     return getJson(fetch(SERVER_URL + 'pages/' + id, { credentials: 'include' })
     ).then( pagina => {
         return {
-                id: pagina.id,
-                title:pagina.title,
-                authorId: pagina.authorId,
-                creationDate: dayjs(pagina.creationDate),
-                publicationDate: dayjs(pagina.publicationDate),
-                blocks: pagina.blocks.map((blocco)=>
-                    ({id: blocco.id, blockType: blocco.blockType, content: blocco.content, order: blocco.order}))
+            id: pagina.id,
+            title:pagina.title,
+            creationDate: dayjs(pagina.creationDate),
+            publicationDate: dayjs(pagina.publicationDate),
+            user: {id: pagina.user.id, name: pagina.user.name, admin: pagina.user.admin},
+            blocks: pagina.blocks.map((blocco)=>
+                ({id: blocco.id, blockType: blocco.blockType, content: blocco.content, order: blocco.order}))
             };
     })
 }
@@ -66,6 +66,17 @@ async function getPage(id) {
 async function addPage(page) {
     return getJson(fetch(SERVER_URL + 'pages', {
         method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(page)
+    }))
+}
+
+async function editPage(page) {
+    return getJson(fetch(SERVER_URL + 'pages/' + page.id, {
+        method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -99,7 +110,11 @@ async function setTitle(title) {
 }
 
 async function getImages() {
-    return getJson(fetch(SERVER_URL + 'images',{ credentials: 'include' }))
+    return getJson(fetch(SERVER_URL + 'images'))
+}
+
+async function getUsers() {
+    return getJson(fetch(SERVER_URL + 'users',{ credentials: 'include' }))
 }
 
 /***   USERS APIs    ***/
@@ -150,12 +165,11 @@ async function getCurrentSession()  {
             pagine: object.pagine.map((pagina) => ({
                 id: pagina.id,
                 title: pagina.title,
-                authorId: pagina.authorId,
                 creationDate: dayjs(pagina.creationDate),
                 publicationDate: dayjs(pagina.publicationDate),
                 user: {id: pagina.user.id, name: pagina.user.name, admin: pagina.user.admin},
                 blocks: pagina.blocks.map((blocco) =>
-                    ({id: blocco.id, blockType: blocco.blockType, pageId: blocco.pageId, content: blocco.content, order:blocco.order}))
+                    ({id: blocco.id, blockType: blocco.blockType, content: blocco.content, order:blocco.order}))
             }))
         };
     } else {
@@ -171,5 +185,5 @@ async function logOut() {
     });
 }
 
-const API = { getPages, logIn, logOut, getCurrentSession, getPage, getImages ,addPage, deletePage, getTitle, setTitle};
+const API = { getPages, logIn, logOut, getCurrentSession, getPage, getImages, getUsers, addPage, editPage, deletePage, getTitle, setTitle};
 export default API;

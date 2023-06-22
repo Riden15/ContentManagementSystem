@@ -23,6 +23,12 @@
   padding-top: 5rem;
 }
 
+.card {
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* Icons */
 .icon-size {
   font-size: 1.5rem;
@@ -93,4 +99,11 @@ small.watch-date {
 /* Adding padding to form */
 .form-padding {
   padding: 2rem;
+}
+
+.cardImg {
+  height: 7.5rem;
+  width: 7.5rem;
+  margin-left:auto;
+  margin-right:auto;
 }
