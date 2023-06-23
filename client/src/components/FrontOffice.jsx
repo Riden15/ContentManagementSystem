@@ -45,7 +45,7 @@ function PageListFrontOffice(props) {
                     user ?
                         pageList.filter((page) => ( page.publicationDate.isValid() && !page.publicationDate.isAfter(dayjs()))).map((page) =>
                             <PageRow key={page.id} pageData={page} user={user}/>) :
-                        pageList.map((page) => <PageRow key={page.id} pageData={page} user={user}/>)
+                        pageList.filter((page) => (page.publicationDate.isValid())).map((page) => <PageRow key={page.id} pageData={page} user={user}/>)
                 }
                 </tbody>
             </Table>
