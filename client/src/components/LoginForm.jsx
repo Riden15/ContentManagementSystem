@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import API from '../API';
 
 function LoginForm(props) {
-    const [username, setUsername] = useState('riccardo@test.com');
-    const [password, setPassword] = useState('prova');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('') ;
     const navigate = useNavigate();
 
