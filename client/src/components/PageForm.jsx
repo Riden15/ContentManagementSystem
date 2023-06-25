@@ -201,6 +201,8 @@ function PageForm(props) {
                     authorId: author.id,
                     blocks: arrayBlocks
                 }
+                console.log(pagina);
+                console.log(author.id);
                 props.editPage(pagina);
             }
             else{
@@ -233,7 +235,7 @@ function PageForm(props) {
                 <Form.Label>Author</Form.Label>
 
                 { props.user.admin ===1 ?
-                    <Form.Select aria-label="Default select example" disabled={props.user.admin!==1} required={true} onChange={event => setAuthor(event.target.value)}>
+                    <Form.Select aria-label="Default select example" disabled={props.user.admin!==1} required={true} onChange={event => setAuthor({id: event.target.value, name: event.target.name})}>
                         {
                             usersList.map((user, index) => (
                                 <option key={index} value={user.id}>{user.name}</option>
