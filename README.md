@@ -384,10 +384,10 @@
 
 ## Users Credentials
 
-* username: riccardo@test.com, password: "pwd"
-* username: stefano@test.com, password: "pwd"
-* username: simone@test.com, password: "pwd"
-* username: lorenzo@test.com, password: "pwd"
-* username: chiara@test.com, password: "pwd"
+* username: riccardo@test.com, password: "prova"
+* username: stefano@test.com, password: "prova"
+* username: simone@test.com, password: "prova"
+* username: lorenzo@test.com, password: "prova"
+* username: chiara@test.com, password: "prova"
 
 
