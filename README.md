@@ -1,6 +1,8 @@
 # Exam: "CMSmall"
 ## Student: Cardona Riccardo 
 
+The goal of the project is to design and implement a web application to manage a small content management system (CMS) with a minimal set of features.
+
 ## React Client Application Routes
 
 - Route `/`: FrontOffice, where the not logged user can see the published page
